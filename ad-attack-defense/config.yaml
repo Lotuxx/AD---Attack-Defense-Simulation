@@ -1,0 +1,29 @@
+# AD Attacks & Defense Simulation — Configuration
+# Modifiez ce fichier selon votre environnement de lab.
+
+# ── Domaine Active Directory ──────────────────────────────────────────────────
+domain: "lab.local"
+dc_ip:  "192.168.56.10"       # IP du Domain Controller
+
+# Compte de test (utilisateur standard du domaine)
+domain_user:     "testuser"
+domain_password: "Password123!"   # À changer
+
+# ── SIEM Wazuh ────────────────────────────────────────────────────────────────
+wazuh_host:     "192.168.56.20"  # IP du serveur Wazuh
+wazuh_port:     55000
+wazuh_user:     "wazuh"
+wazuh_password: "wazuh"
+verify_ssl:     false
+
+# ── Réseau du laboratoire ─────────────────────────────────────────────────────
+kali_ip:        "192.168.56.30"  # Machine attaquante
+target_ip:      "192.168.56.11"  # Poste client Windows
+
+# ── Rapports ──────────────────────────────────────────────────────────────────
+report_format:  "both"   # txt | csv | both
+report_dir:     "reports/"
+
+# ── Limites de sécurité ───────────────────────────────────────────────────────
+max_spray_attempts: 3      # Nombre max de tentatives par compte (spray)
+spray_delay_s:      5      # Délai entre tentatives (éviter le lockout)

@@ -1,0 +1,51 @@
+# Playbook : Full Attack Chain
+# Simule une compromission complète d'un domaine AD
+
+name: "Full AD Attack Chain"
+description: >
+  Chaîne d'attaque complète : Initial Access → Credential Access
+  → Privilege Escalation → Lateral Movement.
+  Utilisable uniquement dans un laboratoire isolé.
+
+steps:
+  - name: "Password Spraying (Initial Access)"
+    module: "red_team.password_spray"
+    function: "run_attack"
+    delay_s: 2
+    stop_on_fail: false
+    params: {}
+
+  - name: "LLMNR Poisoning (Credential Capture)"
+    module: "red_team.llmnr_poisoning"
+    function: "run_attack"
+    delay_s: 3
+    stop_on_fail: false
+    params: {}
+
+  - name: "Kerberoasting (TGS Extraction)"
+    module: "red_team.kerberoasting"
+    function: "run_attack"
+    delay_s: 2
+    stop_on_fail: false
+    params: {}
+
+  - name: "Pass-the-Hash (Privilege Escalation)"
+    module: "red_team.pth"
+    function: "run_attack"
+    delay_s: 2
+    stop_on_fail: false
+    params: {}
+
+  - name: "Lateral Movement (PsExec / WMI)"
+    module: "red_team.lateral_mouvement"
+    function: "run_attack"
+    delay_s: 3
+    stop_on_fail: false
+    params: {}
+
+  - name: "Purple Team — Validation détection"
+    module: "purple_team.validate_detection"
+    function: "run"
+    delay_s: 5
+    stop_on_fail: false
+    params: {}
