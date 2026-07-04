@@ -1,0 +1,29 @@
+name: "Purple Team — Validation de détection"
+description: >
+  Récupère les alertes Wazuh, corrèle avec les attaques simulées
+  et génère un rapport de couverture de détection.
+
+steps:
+  - name: "Récupération des alertes Wazuh"
+    module: "purple_team.fetch_wazuh_alerts"
+    function: "run"
+    delay_s: 2
+    stop_on_fail: false
+    params:
+      minutes: 120
+      min_level: 3
+
+  - name: "Corrélation attaques / alertes"
+    module: "purple_team.correlate_attack"
+    function: "run"
+    delay_s: 1
+    stop_on_fail: false
+    params:
+      minutes: 120
+
+  - name: "Validation globale de détection"
+    module: "purple_team.validate_detection"
+    function: "run"
+    delay_s: 1
+    stop_on_fail: false
+    params: {}

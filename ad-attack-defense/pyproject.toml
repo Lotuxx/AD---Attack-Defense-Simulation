@@ -1,0 +1,75 @@
+[project]
+name = "ad-attack-defense"
+version = "1.1.0"
+description = "Active Directory Attacks & Defense Simulation Framework"
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+authors = [
+    { name = "NISSEKONG Georges Owen" },
+    { name = "DIOP Salla" },
+]
+license = { text = "MIT" }
+keywords = ["active-directory", "pentest", "blue-team", "red-team", "siem", "wazuh", "goad"]
+
+# ── Runtime dependencies ───────────────────────────────────────────────────────
+dependencies = [
+    "pyyaml>=6.0",          # YAML config + playbook parsing
+    "impacket>=0.12.0",     # Kerberoasting, PtH, secretsdump, PsExec
+    "ldap3>=2.9.1",         # LDAP queries to AD (Blue Team audits — no PowerShell needed)
+    "requests>=2.31.0",     # HTTP client
+    "urllib3>=2.0.0",       # Wazuh API calls
+    "reportlab>=4.0",       # PDF report generation
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.4.0",
+]
+reporting = [
+    "reportlab>=4.0",       # PDF report generation (future)
+    "jinja2>=3.1",          # HTML report templating (future)
+]
+
+[project.scripts]
+ad-attack-defense = "cli:main"
+
+[tool.poetry]
+packages = [
+    { include = "cli.py" },
+    { include = "core" },
+    { include = "modules" },
+    { include = "utils" },
+]
+
+[tool.poetry.dependencies]
+python  = ">=3.10,<4.0"
+pyyaml     = ">=6.0"
+impacket   = ">=0.12.0"
+ldap3      = ">=2.9.1"
+requests   = ">=2.31.0"
+urllib3    = ">=2.0.0"
+reportlab  = ">=4.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest     = ">=8.0"
+pytest-cov = ">=5.0"
+ruff       = ">=0.4.0"
+
+[tool.ruff]
+line-length    = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths    = ["tests"]
+python_files = ["test_*.py"]
+addopts      = "-v --tb=short"
+
+[build-system]
+requires      = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
