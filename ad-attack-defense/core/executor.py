@@ -1,6 +1,4 @@
 """
-Executor (v1.2)
-===============
 Runs framework modules and YAML playbooks.
 
 New in v1.2:
@@ -10,6 +8,10 @@ New in v1.2:
 
 import os
 import json
+Executor — runs modules and YAML playbooks, collects results.
+"""
+
+import os
 import time
 import yaml
 from datetime import datetime
@@ -25,84 +27,73 @@ from utils.format_utils import (
 logger = FrameworkLogger("Executor")
 
 PLAYBOOKS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "playbooks")
-CACHE_DIR     = os.path.join(os.path.dirname(os.path.dirname(__file__)), "reports", "cache")
-os.makedirs(CACHE_DIR, exist_ok=True)
 
 
 class Executor:
-    """
-    Executes framework modules and YAML playbooks.
-    Caches results to JSON for PDF report generation and before/after comparison.
-
-    Args:
-        loader  : ModuleLoader instance.
-        verbose : If True, print extra debug info.
-    """
-
     def __init__(self, loader: ModuleLoader, verbose: bool = False):
         self.loader  = loader
         self.verbose = verbose
 
     def run_module(self, module_path: str, func_name: str, **kwargs) -> dict:
         """
-        Load and call a module function.
-        Returns a standardised result dict and caches it to JSON.
+        Dynamically load and call a module function.
+        Returns a structured result dict.
         """
-        print_info(f"Executing: modules.{module_path}.{func_name}()")
+        print_info(f"Exécution : modules.{module_path}.{func_name}()")
         logger.info(f"run_module: {module_path}.{func_name} kwargs={kwargs}")
 
         mod = self.loader.load(module_path)
         if mod is None:
-            return self._error_result(module_path, "Module not found")
+            return self._error_result(module_path, "Module introuvable")
 
         func = getattr(mod, func_name, None)
         if func is None:
-            msg = f"Function '{func_name}' not found in {module_path}"
+            msg = f"Fonction '{func_name}' introuvable dans {module_path}"
             print_error(msg)
+            logger.error(msg)
             return self._error_result(module_path, msg)
 
         start = time.time()
         try:
-            result  = func(**kwargs) if kwargs else func()
+            result = func(**kwargs) if kwargs else func()
             elapsed = round(time.time() - start, 2)
-
-            result.setdefault("module",    module_path)
+            result.setdefault("module", module_path)
             result.setdefault("elapsed_s", elapsed)
             result.setdefault("timestamp", datetime.now().isoformat())
 
             status = result.get("status", "unknown")
             if status == "success":
-                print_success(f"Module completed in {elapsed}s")
+                print_success(f"Module terminé en {elapsed}s")
             else:
-                print_warning(f"Module completed with status: {status}")
+                print_warning(f"Module terminé avec statut : {status}")
 
-            logger.info(f"Result: status={status} elapsed={elapsed}s")
+            logger.info(f"Résultat : status={status} elapsed={elapsed}s")
             return result
 
         except Exception as e:
             elapsed = round(time.time() - start, 2)
-            logger.error(f"Exception in {module_path}.{func_name}: {e}")
-            print_error(f"Execution error: {e}")
+            logger.error(f"Exception dans {module_path}.{func_name} : {e}")
+            print_error(f"Erreur d'exécution : {e}")
             return self._error_result(module_path, str(e), elapsed)
 
     def run_playbook(self, playbook_name: str) -> list:
         """
-        Load and execute a YAML playbook step by step.
-        Caches the combined results for later PDF generation.
+        Load and execute a YAML playbook.
+        Returns list of step results.
         """
         path = os.path.join(PLAYBOOKS_DIR, playbook_name)
         if not os.path.exists(path):
-            print_error(f"Playbook not found: {path}")
+            print_error(f"Playbook introuvable : {path}")
             return []
 
-        with open(path) as fh:
-            playbook = yaml.safe_load(fh)
+        with open(path) as f:
+            playbook = yaml.safe_load(f)
 
-        name    = playbook.get("name", playbook_name)
-        steps   = playbook.get("steps", [])
+        name   = playbook.get("name", playbook_name)
+        steps  = playbook.get("steps", [])
         results = []
 
-        print_separator(f"PLAYBOOK: {name}")
+        print_separator(f"PLAYBOOK : {name}")
         print_info(playbook.get("description", ""))
         print()
 
@@ -122,42 +113,13 @@ class Executor:
             results.append(result)
 
             if step.get("stop_on_fail") and result.get("status") != "success":
-                print_warning(f"Stopping playbook on failure at: {step_name}")
+                print_warning(f"Arrêt du playbook sur échec : {step_name}")
                 break
 
-        # Cache combined results
-        self._cache_results(results, playbook_name)
-        print_success(f"Playbook '{name}' completed — {len(results)}/{total} steps.")
+        print_success(f"Playbook '{name}' terminé — {len(results)}/{total} étapes.")
         return results
 
-    def _cache_results(self, results: list, label: str):
-        """
-        Save results to JSON cache for later PDF generation and comparison.
-        File: reports/cache/<label>_<timestamp>.json
-        """
-        try:
-            ts       = datetime.now().strftime("%Y%m%d_%H%M%S")
-            safe     = label.replace("/", "_").replace(".", "_")
-            filename = f"{safe}_{ts}.json"
-            path     = os.path.join(CACHE_DIR, filename)
-
-            # Sanitise: convert non-serialisable objects to strings
-            def _sanitise(obj):
-                if isinstance(obj, dict):
-                    return {k: _sanitise(v) for k, v in obj.items()}
-                elif isinstance(obj, list):
-                    return [_sanitise(v) for v in obj]
-                try:
-                    json.dumps(obj)
-                    return obj
-                except (TypeError, ValueError):
-                    return str(obj)
-
-            with open(path, "w", encoding="utf-8") as fh:
-                json.dump(_sanitise(results), fh, indent=2, ensure_ascii=False)
-            logger.info(f"Results cached: {path}")
-        except Exception as e:
-            logger.error(f"Cache write failed: {e}")
+    # ── Helpers ──────────────────────────────────────────────────────────────
 
     @staticmethod
     def _error_result(module: str, message: str, elapsed: float = 0.0) -> dict:
