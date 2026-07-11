@@ -102,7 +102,7 @@ def run(**kwargs) -> dict:
         rule_ids = meta["wazuh_rules"]
 
         if connected:
-            counts = api.count_alerts_by_rule(rule_ids, minutes=60)
+            counts = api.count_alerts_by_rule(rule_ids, minutes=360)
             total_alerts = sum(counts.values())
         else:
             # Demo mode — simulate partial detection

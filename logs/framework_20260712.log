@@ -34,3 +34,32 @@
 2026-07-12 00:29:22,775 [Loader] INFO — Module loaded: modules.red_team.pth
 2026-07-12 00:29:23,288 [Executor] INFO — Result: status=partial elapsed=0.51s
 2026-07-12 00:29:23,313 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_pth_20260712_002923.pdf
+2026-07-12 00:52:59,519 [Executor] INFO — run_module: red_team.asrep_roasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-12 00:52:59,524 [Loader] INFO — Module loaded: modules.red_team.asrep_roasting
+2026-07-12 00:53:00,018 [Executor] INFO — Result: status=success elapsed=0.49s
+2026-07-12 00:53:00,039 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_asrep_roasting_20260712_005300.pdf
+2026-07-12 00:53:22,628 [Executor] INFO — run_module: red_team.pth.run_attack kwargs={'target': '192.168.56.10', 'domain': 'sevenkingdoms.local'}
+2026-07-12 00:53:22,631 [Loader] INFO — Module loaded: modules.red_team.pth
+2026-07-12 00:54:03,652 [Executor] INFO — Result: status=success elapsed=41.02s
+2026-07-12 00:54:03,679 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_pth_20260712_005403.pdf
+2026-07-12 00:55:23,497 [Executor] INFO — run_module: purple_team.validate_detection.run kwargs={}
+2026-07-12 00:55:23,499 [Loader] INFO — Module loaded: modules.purple_team.validate_detection
+2026-07-12 00:55:23,830 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-12 00:55:24,280 [Executor] INFO — Result: status=success elapsed=0.78s
+2026-07-12 00:55:24,314 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/purple_validation_20260712_005524.pdf
+2026-07-12 00:56:35,983 [Executor] INFO — run_module: purple_team.validate_detection.run kwargs={}
+2026-07-12 00:56:35,986 [Loader] INFO — Module loaded: modules.purple_team.validate_detection
+2026-07-12 00:56:36,389 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-12 00:56:36,778 [Executor] INFO — Result: status=success elapsed=0.79s
+2026-07-12 00:56:36,811 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/purple_validation_20260712_005636.pdf
+2026-07-12 00:57:08,436 [Executor] INFO — run_module: purple_team.validate_detection.run kwargs={}
+2026-07-12 00:57:08,439 [Loader] INFO — Module loaded: modules.purple_team.validate_detection
+2026-07-12 00:57:08,739 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-12 00:57:09,104 [Executor] INFO — Result: status=success elapsed=0.67s
+2026-07-12 00:57:09,139 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/purple_validation_20260712_005709.pdf
+2026-07-12 00:59:48,721 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-12 01:00:21,703 [Executor] INFO — run_module: purple_team.validate_detection.run kwargs={}
+2026-07-12 01:00:21,708 [Loader] INFO — Module loaded: modules.purple_team.validate_detection
+2026-07-12 01:00:22,026 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-12 01:00:23,413 [Executor] INFO — Result: status=success elapsed=1.7s
+2026-07-12 01:00:23,436 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/purple_validation_20260712_010023.pdf
