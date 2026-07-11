@@ -1,0 +1,8 @@
+config.yaml
+reports/*.pdf
+reports/*.db
+logs/
+__pycache__/
+*.pyc
+.venv/
+*.ccache
