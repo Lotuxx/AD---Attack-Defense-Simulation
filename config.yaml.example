@@ -1,0 +1,49 @@
+# ── Copy this file to config.yaml and fill in your lab values ─────────────────
+# config.yaml is in .gitignore — never commit credentials
+
+# ── Active Directory ──────────────────────────────────────────────────────────
+domain:          "sevenkingdoms.local"    # Primary domain (GOAD)
+dc_ip:           "192.168.56.10"          # Domain Controller IP
+
+domain_user:     "jon.snow"               # Standard domain user for enumeration
+domain_password: "iknownothing"           # Change this
+
+# ── Wazuh SIEM ────────────────────────────────────────────────────────────────
+wazuh_host:     "192.168.56.20"
+wazuh_port:     55000
+wazuh_user:     "admin"
+wazuh_password: "<generated_during_wazuh_install>"
+verify_ssl:     false                     # Self-signed cert in lab = false
+
+# OpenSearch (direct index queries, used by Purple Team). Usually the same
+# account as above unless your lab configured a separate OpenSearch admin.
+opensearch_user:     "admin"
+opensearch_password: "<opensearch_admin_password>"
+
+# OpenSearch SSH tunnel (optional). If set, the framework automatically opens
+# and reuses a persistent `ssh -L <local>:localhost:<remote>` tunnel instead
+# of requiring you to launch one manually before every Purple Team run.
+# Leave opensearch_ssh_host/opensearch_ssh_user unset to keep managing the
+# tunnel yourself (previous behavior).
+opensearch_ssh_host:     "192.168.56.20"   # defaults to wazuh_host if unset
+opensearch_ssh_user:     "vagrant"
+opensearch_ssh_port:     22
+opensearch_ssh_key_path: ""                # optional path to a private key
+opensearch_local_port:   9200
+opensearch_remote_port:  9200
+
+# ── Secrets via environment variables (optional) ──────────────────────────────
+# Instead of storing passwords here, you can export:
+#   DOMAIN_PASSWORD, WAZUH_PASSWORD, OPENSEARCH_PASSWORD
+# Any of these env vars, if set, override the corresponding value above.
+
+# ── Network ───────────────────────────────────────────────────────────────────
+kali_ip:   "192.168.56.30"               # Attacker machine
+target_ip: "192.168.56.11"               # Primary target (DC02 / workstation)
+
+# ── Reports ───────────────────────────────────────────────────────────────────
+report_format: "pdf"                     # PDF only — TXT/CSV were dropped
+
+# ── Attack limits (avoid lockouts) ───────────────────────────────────────────
+max_spray_attempts: 3
+spray_delay_s:      5

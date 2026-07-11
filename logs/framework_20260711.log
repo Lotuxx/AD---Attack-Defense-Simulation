@@ -1,0 +1,297 @@
+2026-07-11 06:51:54,559 [Loader] INFO — Module loaded: modules.blue_team.audit_passwords
+2026-07-11 06:51:54,561 [Loader] ERROR — Module not found: modules.blue_team.does_not_exist — No module named 'modules.blue_team.does_not_exist'
+2026-07-11 06:51:54,562 [Loader] INFO — Module loaded: modules.blue_team.audit_passwords
+2026-07-11 06:51:54,563 [Loader] INFO — Module loaded: modules.blue_team.audit_privileges
+2026-07-11 06:51:54,564 [Loader] INFO — Module loaded: modules.blue_team.audit_gpo
+2026-07-11 06:51:54,565 [Loader] INFO — Module loaded: modules.blue_team.audit_network
+2026-07-11 06:51:54,567 [Loader] INFO — Module loaded: modules.blue_team.audit_logs
+2026-07-11 06:51:54,570 [Loader] INFO — Module loaded: modules.red_team.password_spray
+2026-07-11 06:51:54,572 [Loader] INFO — Module loaded: modules.red_team.kerberoasting
+2026-07-11 06:51:54,574 [Loader] INFO — Module loaded: modules.red_team.llmnr_poisoning
+2026-07-11 06:51:54,576 [Loader] INFO — Module loaded: modules.red_team.pth
+2026-07-11 06:51:54,579 [Loader] INFO — Module loaded: modules.red_team.lateral_mouvement
+2026-07-11 06:51:54,582 [Loader] INFO — Module loaded: modules.purple_team.validate_detection
+2026-07-11 06:51:54,585 [Loader] INFO — Module loaded: modules.purple_team.fetch_wazuh_alerts
+2026-07-11 06:51:54,587 [Loader] INFO — Module loaded: modules.purple_team.correlate_attack
+2026-07-11 06:51:54,591 [Loader] INFO — Module loaded: modules.response.disable_user
+2026-07-11 06:51:54,594 [Loader] INFO — Module loaded: modules.response.block_ip
+2026-07-11 06:51:54,597 [Loader] INFO — Module loaded: modules.response.reset_password
+2026-07-11 06:51:54,599 [Loader] INFO — Module loaded: modules.response.isolate_host
+2026-07-11 06:51:54,605 [Executor] INFO — run_module: blue_team.nonexistent.run_audit kwargs={}
+2026-07-11 06:51:54,605 [Loader] ERROR — Module not found: modules.blue_team.nonexistent — No module named 'modules.blue_team.nonexistent'
+2026-07-11 06:51:54,608 [Executor] INFO — run_module: blue_team.audit_passwords.nonexistent_func kwargs={}
+2026-07-11 06:51:54,609 [Loader] INFO — Module loaded: modules.blue_team.audit_passwords
+2026-07-11 06:51:54,609 [Executor] ERROR — Function 'nonexistent_func' not found in blue_team.audit_passwords
+2026-07-11 06:51:56,620 [Executor] INFO — run_module: red_team.password_spray.run_attack kwargs={}
+2026-07-11 06:51:56,621 [Loader] INFO — Module loaded: modules.red_team.password_spray
+2026-07-11 06:53:09,999 [Executor] INFO — Result: status=success elapsed=73.38s
+2026-07-11 06:53:13,014 [Executor] INFO — run_module: red_team.llmnr_poisoning.run_attack kwargs={}
+2026-07-11 06:53:13,015 [Loader] INFO — Module loaded: modules.red_team.llmnr_poisoning
+2026-07-11 06:54:23,203 [Executor] INFO — Result: status=success elapsed=70.19s
+2026-07-11 06:54:25,209 [Executor] INFO — run_module: red_team.kerberoasting.run_attack kwargs={}
+2026-07-11 06:54:25,210 [Loader] INFO — Module loaded: modules.red_team.kerberoasting
+2026-07-11 06:54:26,167 [Executor] INFO — Result: status=success elapsed=0.96s
+2026-07-11 06:54:28,174 [Executor] INFO — run_module: red_team.pth.run_attack kwargs={}
+2026-07-11 06:54:28,175 [Loader] INFO — Module loaded: modules.red_team.pth
+2026-07-11 06:54:28,791 [Executor] INFO — Result: status=partial elapsed=0.62s
+2026-07-11 06:54:31,798 [Executor] INFO — run_module: red_team.lateral_mouvement.run_attack kwargs={}
+2026-07-11 06:54:31,798 [Loader] INFO — Module loaded: modules.red_team.lateral_mouvement
+2026-07-11 06:54:34,627 [Executor] INFO — Result: status=success elapsed=2.83s
+2026-07-11 06:54:39,633 [Executor] INFO — run_module: purple_team.validate_detection.run kwargs={}
+2026-07-11 06:54:39,634 [Loader] INFO — Module loaded: modules.purple_team.validate_detection
+2026-07-11 06:54:39,971 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-11 06:54:40,920 [Executor] INFO — Result: status=success elapsed=1.29s
+2026-07-11 06:54:40,927 [Executor] INFO — run_module: red_team.error_test.run_attack kwargs={}
+2026-07-11 06:54:40,928 [Executor] ERROR — Exception in red_team.error_test.run_attack: Simulated exception
+2026-07-11 06:54:40,931 [Executor] INFO — run_module: red_team.password_spray.run_attack kwargs={'target': '192.168.56.12', 'domain': 'test.local'}
+2026-07-11 06:54:40,931 [Executor] INFO — Result: status=success elapsed=0.0s
+2026-07-11 06:54:40,950 [ReportGenerator] INFO — PDF report generated: /tmp/pytest-of-kali/pytest-4/test_generate_creates_pdf0/test_report_20260711_065440.pdf
+2026-07-11 06:54:41,204 [ReportGenerator] INFO — PDF report generated: /tmp/pytest-of-kali/pytest-4/test_generate_pdf_contains_exp0/test_report_20260711_065441.pdf
+2026-07-11 06:54:41,247 [ReportGenerator] INFO — PDF report generated: /tmp/pytest-of-kali/pytest-4/test_generate_redacts_secrets0/secret_report_20260711_065441.pdf
+2026-07-11 06:54:41,274 [ReportGenerator] INFO — PDF report generated: /tmp/pytest-of-kali/pytest-4/test_generate_accepts_list0/multi_report_20260711_065441.pdf
+2026-07-11 06:55:41,829 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-11 06:55:42,918 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-11 06:56:17,582 [Executor] INFO — run_module: blue_team.audit_passwords.run_audit kwargs={}
+2026-07-11 06:56:17,584 [Loader] INFO — Module loaded: modules.blue_team.audit_passwords
+2026-07-11 06:56:17,738 [Executor] INFO — Result: status=warning elapsed=0.15s
+2026-07-11 06:56:18,046 [Executor] INFO — run_module: blue_team.audit_privileges.run_audit kwargs={}
+2026-07-11 06:56:18,046 [Loader] INFO — Module loaded: modules.blue_team.audit_privileges
+2026-07-11 06:56:18,147 [Executor] INFO — Result: status=success elapsed=0.1s
+2026-07-11 06:56:18,453 [Executor] INFO — run_module: blue_team.audit_gpo.run_audit kwargs={}
+2026-07-11 06:56:18,453 [Loader] INFO — Module loaded: modules.blue_team.audit_gpo
+2026-07-11 06:56:18,549 [Executor] INFO — Result: status=warning elapsed=0.1s
+2026-07-11 06:56:18,857 [Executor] INFO — run_module: blue_team.audit_network.run_audit kwargs={}
+2026-07-11 06:56:18,866 [Loader] INFO — Module loaded: modules.blue_team.audit_network
+2026-07-11 06:56:24,581 [Executor] INFO — Result: status=success elapsed=5.71s
+2026-07-11 06:56:24,887 [Executor] INFO — run_module: blue_team.audit_logs.run_audit kwargs={}
+2026-07-11 06:56:24,887 [Loader] INFO — Module loaded: modules.blue_team.audit_logs
+2026-07-11 06:56:24,894 [Executor] INFO — Result: status=warning elapsed=0.01s
+2026-07-11 06:56:25,238 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/blue_team_full_20260711_065625.pdf
+2026-07-11 06:57:32,236 [Executor] INFO — run_module: red_team.asrep_roasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 06:57:32,239 [Loader] INFO — Module loaded: modules.red_team.asrep_roasting
+2026-07-11 06:57:32,690 [Executor] INFO — Result: status=info elapsed=0.45s
+2026-07-11 06:57:32,708 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_asrep_roasting_20260711_065732.pdf
+2026-07-11 06:58:49,835 [Executor] INFO — run_module: red_team.asrep_roasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 06:58:49,837 [Loader] INFO — Module loaded: modules.red_team.asrep_roasting
+2026-07-11 06:58:50,230 [Executor] INFO — Result: status=success elapsed=0.39s
+2026-07-11 06:58:50,251 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_asrep_roasting_20260711_065850.pdf
+2026-07-11 07:01:00,718 [Executor] INFO — run_module: red_team.dcsync.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 07:01:00,722 [Loader] INFO — Module loaded: modules.red_team.dcsync
+2026-07-11 07:01:13,616 [Executor] INFO — Result: status=success elapsed=12.89s
+2026-07-11 07:01:13,635 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_dcsync_20260711_070113.pdf
+2026-07-11 07:03:49,388 [Executor] INFO — run_module: red_team.golden_ticket.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 07:03:49,391 [Loader] INFO — Module loaded: modules.red_team.golden_ticket
+2026-07-11 07:03:49,392 [Executor] INFO — Result: status=error elapsed=0.0s
+2026-07-11 07:03:49,412 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_golden_ticket_20260711_070349.pdf
+2026-07-11 07:15:40,379 [Executor] INFO — run_module: red_team.golden_ticket.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 07:15:40,383 [Loader] INFO — Module loaded: modules.red_team.golden_ticket
+2026-07-11 07:15:40,837 [Executor] INFO — Result: status=success elapsed=0.45s
+2026-07-11 07:15:40,857 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_golden_ticket_20260711_071540.pdf
+2026-07-11 07:18:48,621 [Executor] INFO — run_module: red_team.golden_ticket.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 07:18:48,626 [Loader] INFO — Module loaded: modules.red_team.golden_ticket
+2026-07-11 07:18:50,041 [Executor] INFO — Result: status=success elapsed=1.41s
+2026-07-11 07:18:50,063 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_golden_ticket_20260711_071850.pdf
+2026-07-11 09:26:30,682 [Executor] INFO — run_module: purple_team.validate_detection.run kwargs={}
+2026-07-11 09:26:30,686 [Loader] INFO — Module loaded: modules.purple_team.validate_detection
+2026-07-11 09:26:31,136 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-11 09:26:32,380 [Executor] INFO — Result: status=success elapsed=1.69s
+2026-07-11 09:26:32,405 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/purple_validation_20260711_092632.pdf
+2026-07-11 09:27:10,925 [Executor] INFO — run_module: red_team.password_spray.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:27:10,928 [Loader] INFO — Module loaded: modules.red_team.password_spray
+2026-07-11 09:28:26,984 [Executor] INFO — Result: status=success elapsed=76.06s
+2026-07-11 09:28:27,005 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_password_spray_20260711_092826.pdf
+2026-07-11 09:29:20,952 [Executor] INFO — run_module: purple_team.validate_detection.run kwargs={}
+2026-07-11 09:29:20,954 [Loader] INFO — Module loaded: modules.purple_team.validate_detection
+2026-07-11 09:29:21,251 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-11 09:29:22,688 [Executor] INFO — Result: status=success elapsed=1.73s
+2026-07-11 09:29:22,711 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/purple_validation_20260711_092922.pdf
+2026-07-11 09:30:19,412 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-11 09:33:31,701 [Executor] INFO — run_module: red_team.kerberoasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:33:31,703 [Loader] INFO — Module loaded: modules.red_team.kerberoasting
+2026-07-11 09:33:32,046 [Executor] INFO — Result: status=success elapsed=0.34s
+2026-07-11 09:33:32,067 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_kerberoasting_20260711_093332.pdf
+2026-07-11 09:33:32,967 [Executor] INFO — run_module: red_team.asrep_roasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:33:32,970 [Loader] INFO — Module loaded: modules.red_team.asrep_roasting
+2026-07-11 09:33:33,336 [Executor] INFO — Result: status=info elapsed=0.37s
+2026-07-11 09:33:33,359 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_asrep_roasting_20260711_093333.pdf
+2026-07-11 09:33:34,219 [Executor] INFO — run_module: red_team.dcsync.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:33:34,221 [Loader] INFO — Module loaded: modules.red_team.dcsync
+2026-07-11 09:33:34,690 [Executor] INFO — Result: status=partial elapsed=0.47s
+2026-07-11 09:33:34,714 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_dcsync_20260711_093334.pdf
+2026-07-11 09:33:35,608 [Executor] INFO — run_module: red_team.golden_ticket.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:33:35,611 [Loader] INFO — Module loaded: modules.red_team.golden_ticket
+2026-07-11 09:33:36,242 [Executor] INFO — Result: status=error elapsed=0.63s
+2026-07-11 09:33:36,263 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_golden_ticket_20260711_093336.pdf
+2026-07-11 09:33:37,148 [Executor] INFO — run_module: red_team.password_spray.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:33:37,151 [Loader] INFO — Module loaded: modules.red_team.password_spray
+2026-07-11 09:34:51,740 [Executor] INFO — Result: status=success elapsed=74.59s
+2026-07-11 09:34:51,761 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_password_spray_20260711_093451.pdf
+2026-07-11 09:34:52,603 [Executor] INFO — run_module: red_team.pth.run_attack kwargs={'target': '192.168.56.10', 'domain': 'domain.local'}
+2026-07-11 09:34:52,605 [Loader] INFO — Module loaded: modules.red_team.pth
+2026-07-11 09:35:33,586 [Executor] INFO — Result: status=success elapsed=40.98s
+2026-07-11 09:35:33,608 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_pth_20260711_093533.pdf
+2026-07-11 09:35:34,475 [Executor] INFO — run_module: red_team.lateral_mouvement.run_attack kwargs={'target': '192.168.56.22', 'domain': 'domain.local'}
+2026-07-11 09:35:34,477 [Loader] INFO — Module loaded: modules.red_team.lateral_mouvement
+2026-07-11 09:35:38,859 [Executor] INFO — Result: status=partial elapsed=4.38s
+2026-07-11 09:35:38,880 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_lateral_mouvement_20260711_093538.pdf
+2026-07-11 09:45:21,279 [Executor] INFO — run_module: red_team.kerberoasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:45:21,282 [Loader] INFO — Module loaded: modules.red_team.kerberoasting
+2026-07-11 09:45:21,654 [Executor] INFO — Result: status=success elapsed=0.37s
+2026-07-11 09:45:21,678 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_kerberoasting_20260711_094521.pdf
+2026-07-11 09:45:22,555 [Executor] INFO — run_module: red_team.asrep_roasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:45:22,557 [Loader] INFO — Module loaded: modules.red_team.asrep_roasting
+2026-07-11 09:45:22,884 [Executor] INFO — Result: status=info elapsed=0.33s
+2026-07-11 09:45:22,902 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_asrep_roasting_20260711_094522.pdf
+2026-07-11 09:45:23,778 [Executor] INFO — run_module: red_team.dcsync.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:45:23,781 [Loader] INFO — Module loaded: modules.red_team.dcsync
+2026-07-11 09:45:24,283 [Executor] INFO — Result: status=partial elapsed=0.5s
+2026-07-11 09:45:24,304 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_dcsync_20260711_094524.pdf
+2026-07-11 09:45:25,188 [Executor] INFO — run_module: red_team.golden_ticket.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:45:25,190 [Loader] INFO — Module loaded: modules.red_team.golden_ticket
+2026-07-11 09:45:25,814 [Executor] INFO — Result: status=error elapsed=0.62s
+2026-07-11 09:45:25,835 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_golden_ticket_20260711_094525.pdf
+2026-07-11 09:45:26,708 [Executor] INFO — run_module: red_team.password_spray.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:45:26,711 [Loader] INFO — Module loaded: modules.red_team.password_spray
+2026-07-11 09:46:40,437 [Executor] INFO — Result: status=success elapsed=73.73s
+2026-07-11 09:46:40,455 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_password_spray_20260711_094640.pdf
+2026-07-11 09:46:41,322 [Executor] INFO — run_module: red_team.pth.run_attack kwargs={'target': '192.168.56.10', 'domain': 'domain.local'}
+2026-07-11 09:46:41,324 [Loader] INFO — Module loaded: modules.red_team.pth
+2026-07-11 09:47:22,284 [Executor] INFO — Result: status=success elapsed=40.96s
+2026-07-11 09:47:22,307 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_pth_20260711_094722.pdf
+2026-07-11 09:47:23,183 [Executor] INFO — run_module: red_team.lateral_mouvement.run_attack kwargs={'target': '192.168.56.22', 'domain': 'domain.local'}
+2026-07-11 09:47:23,186 [Loader] INFO — Module loaded: modules.red_team.lateral_mouvement
+2026-07-11 09:47:27,481 [Executor] INFO — Result: status=partial elapsed=4.29s
+2026-07-11 09:47:27,502 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_lateral_mouvement_20260711_094727.pdf
+2026-07-11 09:51:07,433 [Executor] INFO — run_module: red_team.kerberoasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:51:07,436 [Loader] INFO — Module loaded: modules.red_team.kerberoasting
+2026-07-11 09:51:07,790 [Executor] INFO — Result: status=success elapsed=0.35s
+2026-07-11 09:51:07,810 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_kerberoasting_20260711_095107.pdf
+2026-07-11 09:51:08,677 [Executor] INFO — run_module: red_team.asrep_roasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:51:08,679 [Loader] INFO — Module loaded: modules.red_team.asrep_roasting
+2026-07-11 09:51:09,038 [Executor] INFO — Result: status=info elapsed=0.36s
+2026-07-11 09:51:09,058 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_asrep_roasting_20260711_095109.pdf
+2026-07-11 09:51:09,908 [Executor] INFO — run_module: red_team.dcsync.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:51:09,911 [Loader] INFO — Module loaded: modules.red_team.dcsync
+2026-07-11 09:51:10,355 [Executor] INFO — Result: status=partial elapsed=0.44s
+2026-07-11 09:51:10,372 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_dcsync_20260711_095110.pdf
+2026-07-11 09:51:11,226 [Executor] INFO — run_module: red_team.golden_ticket.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:51:11,228 [Loader] INFO — Module loaded: modules.red_team.golden_ticket
+2026-07-11 09:51:11,831 [Executor] INFO — Result: status=error elapsed=0.6s
+2026-07-11 09:51:11,853 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_golden_ticket_20260711_095111.pdf
+2026-07-11 09:51:12,726 [Executor] INFO — run_module: red_team.password_spray.run_attack kwargs={'target': '192.168.56.12', 'domain': 'domain.local'}
+2026-07-11 09:51:12,728 [Loader] INFO — Module loaded: modules.red_team.password_spray
+2026-07-11 09:52:27,717 [Executor] INFO — Result: status=success elapsed=74.99s
+2026-07-11 09:52:27,739 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_password_spray_20260711_095227.pdf
+2026-07-11 09:52:28,595 [Executor] INFO — run_module: red_team.pth.run_attack kwargs={'target': '192.168.56.10', 'domain': 'domain.local'}
+2026-07-11 09:52:28,598 [Loader] INFO — Module loaded: modules.red_team.pth
+2026-07-11 09:53:09,576 [Executor] INFO — Result: status=success elapsed=40.98s
+2026-07-11 09:53:09,595 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_pth_20260711_095309.pdf
+2026-07-11 09:53:10,463 [Executor] INFO — run_module: red_team.lateral_mouvement.run_attack kwargs={'target': '192.168.56.22', 'domain': 'domain.local'}
+2026-07-11 09:53:10,466 [Loader] INFO — Module loaded: modules.red_team.lateral_mouvement
+2026-07-11 09:53:14,755 [Executor] INFO — Result: status=partial elapsed=4.29s
+2026-07-11 09:53:14,777 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_lateral_mouvement_20260711_095314.pdf
+2026-07-11 09:56:05,701 [Executor] INFO — run_module: red_team.asrep_roasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-11 09:56:05,704 [Loader] INFO — Module loaded: modules.red_team.asrep_roasting
+2026-07-11 09:56:06,081 [Executor] INFO — Result: status=info elapsed=0.38s
+2026-07-11 09:56:06,102 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_asrep_roasting_20260711_095606.pdf
+2026-07-11 09:56:06,985 [Executor] INFO — run_module: red_team.dcsync.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-11 09:56:06,987 [Loader] INFO — Module loaded: modules.red_team.dcsync
+2026-07-11 09:56:07,422 [Executor] INFO — Result: status=partial elapsed=0.43s
+2026-07-11 09:56:07,447 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_dcsync_20260711_095607.pdf
+2026-07-11 09:56:21,717 [Executor] INFO — run_module: red_team.asrep_roasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-11 09:56:21,720 [Loader] INFO — Module loaded: modules.red_team.asrep_roasting
+2026-07-11 09:56:22,064 [Executor] INFO — Result: status=info elapsed=0.34s
+2026-07-11 09:56:22,086 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_asrep_roasting_20260711_095622.pdf
+2026-07-11 09:56:22,951 [Executor] INFO — run_module: red_team.dcsync.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-11 09:56:22,953 [Loader] INFO — Module loaded: modules.red_team.dcsync
+2026-07-11 09:56:23,384 [Executor] INFO — Result: status=partial elapsed=0.43s
+2026-07-11 09:56:23,404 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_dcsync_20260711_095623.pdf
+2026-07-11 09:56:24,252 [Executor] INFO — run_module: red_team.golden_ticket.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-11 09:56:24,254 [Loader] INFO — Module loaded: modules.red_team.golden_ticket
+2026-07-11 09:56:24,661 [Executor] INFO — Result: status=error elapsed=0.41s
+2026-07-11 09:56:24,681 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_golden_ticket_20260711_095624.pdf
+2026-07-11 09:56:25,541 [Executor] INFO — run_module: red_team.lateral_mouvement.run_attack kwargs={'target': '192.168.56.22', 'domain': 'essos.local'}
+2026-07-11 09:56:25,544 [Loader] INFO — Module loaded: modules.red_team.lateral_mouvement
+2026-07-11 09:56:29,634 [Executor] INFO — Result: status=partial elapsed=4.09s
+2026-07-11 09:56:29,655 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_lateral_mouvement_20260711_095629.pdf
+2026-07-11 10:00:55,080 [Executor] INFO — run_module: blue_team.audit_passwords.run_audit kwargs={}
+2026-07-11 10:00:55,082 [Loader] INFO — Module loaded: modules.blue_team.audit_passwords
+2026-07-11 10:00:55,231 [Executor] INFO — Result: status=warning elapsed=0.15s
+2026-07-11 10:00:55,541 [Executor] INFO — run_module: blue_team.audit_privileges.run_audit kwargs={}
+2026-07-11 10:00:55,542 [Loader] INFO — Module loaded: modules.blue_team.audit_privileges
+2026-07-11 10:00:55,638 [Executor] INFO — Result: status=warning elapsed=0.1s
+2026-07-11 10:00:55,945 [Executor] INFO — run_module: blue_team.audit_gpo.run_audit kwargs={}
+2026-07-11 10:00:55,945 [Loader] INFO — Module loaded: modules.blue_team.audit_gpo
+2026-07-11 10:00:56,024 [Executor] INFO — Result: status=warning elapsed=0.08s
+2026-07-11 10:00:56,330 [Executor] INFO — run_module: blue_team.audit_network.run_audit kwargs={}
+2026-07-11 10:00:56,333 [Loader] INFO — Module loaded: modules.blue_team.audit_network
+2026-07-11 10:01:01,312 [Executor] INFO — Result: status=success elapsed=4.98s
+2026-07-11 10:01:01,618 [Executor] INFO — run_module: blue_team.audit_logs.run_audit kwargs={}
+2026-07-11 10:01:01,619 [Loader] INFO — Module loaded: modules.blue_team.audit_logs
+2026-07-11 10:01:01,627 [Executor] INFO — Result: status=warning elapsed=0.01s
+2026-07-11 10:01:01,963 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/blue_team_full_20260711_100101.pdf
+2026-07-11 10:01:57,173 [Executor] INFO — run_module: red_team.asrep_roasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-11 10:01:57,175 [Loader] INFO — Module loaded: modules.red_team.asrep_roasting
+2026-07-11 10:01:57,544 [Executor] INFO — Result: status=success elapsed=0.37s
+2026-07-11 10:01:57,565 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_asrep_roasting_20260711_100157.pdf
+2026-07-11 10:02:19,782 [Executor] INFO — run_module: red_team.dcsync.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-11 10:02:19,784 [Loader] INFO — Module loaded: modules.red_team.dcsync
+2026-07-11 10:02:33,238 [Executor] INFO — Result: status=success elapsed=13.45s
+2026-07-11 10:02:33,257 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_dcsync_20260711_100233.pdf
+2026-07-11 10:02:34,119 [Executor] INFO — run_module: red_team.golden_ticket.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-11 10:02:34,122 [Loader] INFO — Module loaded: modules.red_team.golden_ticket
+2026-07-11 10:02:35,487 [Executor] INFO — Result: status=success elapsed=1.37s
+2026-07-11 10:02:35,509 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_golden_ticket_20260711_100235.pdf
+2026-07-11 10:02:36,410 [Executor] INFO — run_module: red_team.lateral_mouvement.run_attack kwargs={'target': '192.168.56.22', 'domain': 'essos.local'}
+2026-07-11 10:02:36,412 [Loader] INFO — Module loaded: modules.red_team.lateral_mouvement
+2026-07-11 10:02:40,918 [Executor] INFO — Result: status=success elapsed=4.51s
+2026-07-11 10:02:40,944 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_lateral_mouvement_20260711_100240.pdf
+2026-07-11 10:03:45,726 [Executor] INFO — run_module: purple_team.validate_detection.run kwargs={}
+2026-07-11 10:03:45,729 [Loader] INFO — Module loaded: modules.purple_team.validate_detection
+2026-07-11 10:03:46,064 [WazuhAPI] INFO — Wazuh authentication successful
+2026-07-11 10:03:47,646 [Executor] INFO — Result: status=success elapsed=1.92s
+2026-07-11 10:03:47,668 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/purple_validation_20260711_100347.pdf
+2026-07-11 10:22:43,664 [Executor] INFO — run_module: red_team.dcsync.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-11 10:22:43,667 [Loader] INFO — Module loaded: modules.red_team.dcsync
+2026-07-11 10:22:44,241 [Executor] INFO — Result: status=partial elapsed=0.57s
+2026-07-11 10:22:44,269 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_dcsync_20260711_102244.pdf
+2026-07-11 10:23:06,953 [Executor] INFO — run_module: red_team.dcsync.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-11 10:23:06,955 [Loader] INFO — Module loaded: modules.red_team.dcsync
+2026-07-11 10:23:07,381 [Executor] INFO — Result: status=partial elapsed=0.43s
+2026-07-11 10:23:07,400 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_dcsync_20260711_102307.pdf
+2026-07-11 10:24:07,119 [Executor] INFO — run_module: red_team.dcsync.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-11 10:24:07,121 [Loader] INFO — Module loaded: modules.red_team.dcsync
+2026-07-11 10:24:20,347 [Executor] INFO — Result: status=success elapsed=13.23s
+2026-07-11 10:24:20,367 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_dcsync_20260711_102420.pdf
+2026-07-11 17:23:53,401 [Executor] INFO — run_module: blue_team.audit_passwords.run_audit kwargs={}
+2026-07-11 17:23:53,405 [Loader] INFO — Module loaded: modules.blue_team.audit_passwords
+2026-07-11 17:23:53,589 [Executor] INFO — Result: status=warning elapsed=0.18s
+2026-07-11 17:23:53,899 [Executor] INFO — run_module: blue_team.audit_privileges.run_audit kwargs={}
+2026-07-11 17:23:53,900 [Loader] INFO — Module loaded: modules.blue_team.audit_privileges
+2026-07-11 17:23:54,001 [Executor] INFO — Result: status=warning elapsed=0.1s
+2026-07-11 17:23:54,307 [Executor] INFO — run_module: blue_team.audit_gpo.run_audit kwargs={}
+2026-07-11 17:23:54,308 [Loader] INFO — Module loaded: modules.blue_team.audit_gpo
+2026-07-11 17:23:54,382 [Executor] INFO — Result: status=warning elapsed=0.07s
+2026-07-11 17:23:54,689 [Executor] INFO — run_module: blue_team.audit_network.run_audit kwargs={}
+2026-07-11 17:23:54,691 [Loader] INFO — Module loaded: modules.blue_team.audit_network
+2026-07-11 17:24:00,266 [Executor] INFO — Result: status=success elapsed=5.57s
+2026-07-11 17:24:00,573 [Executor] INFO — run_module: blue_team.audit_logs.run_audit kwargs={}
+2026-07-11 17:24:00,573 [Loader] INFO — Module loaded: modules.blue_team.audit_logs
+2026-07-11 17:24:00,580 [Executor] INFO — Result: status=warning elapsed=0.01s
+2026-07-11 17:24:00,928 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/blue_team_full_20260711_172400.pdf
+2026-07-11 23:58:13,624 [Executor] INFO — run_module: blue_team.audit_passwords.run_audit kwargs={}
+2026-07-11 23:58:13,626 [Loader] INFO — Module loaded: modules.blue_team.audit_passwords
+2026-07-11 23:58:13,797 [Executor] INFO — Result: status=warning elapsed=0.17s
+2026-07-11 23:58:14,113 [Executor] INFO — run_module: blue_team.audit_privileges.run_audit kwargs={}
+2026-07-11 23:58:14,113 [Loader] INFO — Module loaded: modules.blue_team.audit_privileges
+2026-07-11 23:58:14,260 [Executor] INFO — Result: status=warning elapsed=0.14s
+2026-07-11 23:58:14,572 [Executor] INFO — run_module: blue_team.audit_gpo.run_audit kwargs={}
+2026-07-11 23:58:14,572 [Loader] INFO — Module loaded: modules.blue_team.audit_gpo
+2026-07-11 23:58:14,670 [Executor] INFO — Result: status=warning elapsed=0.1s
+2026-07-11 23:58:14,978 [Executor] INFO — run_module: blue_team.audit_network.run_audit kwargs={}
+2026-07-11 23:58:14,980 [Loader] INFO — Module loaded: modules.blue_team.audit_network
+2026-07-11 23:58:22,370 [Executor] INFO — Result: status=success elapsed=7.39s
+2026-07-11 23:58:22,683 [Executor] INFO — run_module: blue_team.audit_logs.run_audit kwargs={}
+2026-07-11 23:58:22,684 [Loader] INFO — Module loaded: modules.blue_team.audit_logs
+2026-07-11 23:58:22,696 [Executor] INFO — Result: status=warning elapsed=0.01s
+2026-07-11 23:58:23,071 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/blue_team_full_20260711_235823.pdf

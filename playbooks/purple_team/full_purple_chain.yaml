@@ -1,0 +1,65 @@
+name: "Full Purple Chain"
+description: >
+  Chaîne complète Purple Team :
+  Audit Blue → Attaques Red → Validation Purple → Rapport de couverture.
+
+steps:
+  - name: "Audit Blue Team préalable"
+    module: "blue_team.audit_logs"
+    function: "run_audit"
+    delay_s: 2
+    stop_on_fail: false
+    params:
+      hours: 2
+
+  - name: "Password Spraying"
+    module: "red_team.password_spray"
+    function: "run_attack"
+    delay_s: 3
+    stop_on_fail: false
+    params: {}
+
+  - name: "Kerberoasting"
+    module: "red_team.kerberoasting"
+    function: "run_attack"
+    delay_s: 3
+    stop_on_fail: false
+    params: {}
+
+  - name: "Pass-the-Hash"
+    module: "red_team.pth"
+    function: "run_attack"
+    delay_s: 3
+    stop_on_fail: false
+    params: {}
+
+  - name: "Lateral Movement"
+    module: "red_team.lateral_mouvement"
+    function: "run_attack"
+    delay_s: 3
+    stop_on_fail: false
+    params: {}
+
+  - name: "Attente propagation logs vers Wazuh (30s)"
+    module: "purple_team.fetch_wazuh_alerts"
+    function: "run"
+    delay_s: 30
+    stop_on_fail: false
+    params:
+      minutes: 15
+      min_level: 3
+
+  - name: "Corrélation et rapport de couverture"
+    module: "purple_team.correlate_attack"
+    function: "run"
+    delay_s: 2
+    stop_on_fail: false
+    params:
+      minutes: 60
+
+  - name: "Validation finale de détection"
+    module: "purple_team.validate_detection"
+    function: "run"
+    delay_s: 1
+    stop_on_fail: false
+    params: {}

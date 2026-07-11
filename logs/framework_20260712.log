@@ -1,0 +1,36 @@
+2026-07-12 00:23:06,142 [Executor] INFO — run_module: red_team.kerberoasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-12 00:23:06,145 [Loader] INFO — Module loaded: modules.red_team.kerberoasting
+2026-07-12 00:23:07,050 [Executor] INFO — Result: status=success elapsed=0.91s
+2026-07-12 00:23:07,078 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_kerberoasting_20260712_002307.pdf
+2026-07-12 00:23:08,150 [Executor] INFO — run_module: red_team.password_spray.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-12 00:23:08,153 [Loader] INFO — Module loaded: modules.red_team.password_spray
+2026-07-12 00:24:38,265 [Executor] INFO — Result: status=success elapsed=90.11s
+2026-07-12 00:24:38,291 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_password_spray_20260712_002438.pdf
+2026-07-12 00:24:39,358 [Executor] INFO — run_module: red_team.asrep_roasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-12 00:24:39,361 [Loader] INFO — Module loaded: modules.red_team.asrep_roasting
+2026-07-12 00:24:39,853 [Executor] INFO — Result: status=info elapsed=0.49s
+2026-07-12 00:24:39,877 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_asrep_roasting_20260712_002439.pdf
+2026-07-12 00:24:41,056 [Executor] INFO — run_module: red_team.dcsync.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-12 00:24:41,059 [Loader] INFO — Module loaded: modules.red_team.dcsync
+2026-07-12 00:24:55,064 [Executor] INFO — Result: status=success elapsed=14.0s
+2026-07-12 00:24:55,090 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_dcsync_20260712_002455.pdf
+2026-07-12 00:24:56,213 [Executor] INFO — run_module: red_team.golden_ticket.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-12 00:24:56,217 [Loader] INFO — Module loaded: modules.red_team.golden_ticket
+2026-07-12 00:24:57,845 [Executor] INFO — Result: status=success elapsed=1.63s
+2026-07-12 00:24:57,872 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_golden_ticket_20260712_002457.pdf
+2026-07-12 00:24:58,951 [Executor] INFO — run_module: red_team.pth.run_attack kwargs={'target': '192.168.56.10', 'domain': 'sevenkingdoms.local'}
+2026-07-12 00:24:58,953 [Loader] INFO — Module loaded: modules.red_team.pth
+2026-07-12 00:24:59,490 [Executor] INFO — Result: status=partial elapsed=0.54s
+2026-07-12 00:24:59,518 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_pth_20260712_002459.pdf
+2026-07-12 00:25:00,631 [Executor] INFO — run_module: red_team.lateral_mouvement.run_attack kwargs={'target': '192.168.56.22', 'domain': 'essos.local'}
+2026-07-12 00:25:00,633 [Loader] INFO — Module loaded: modules.red_team.lateral_mouvement
+2026-07-12 00:25:05,877 [Executor] INFO — Result: status=success elapsed=5.24s
+2026-07-12 00:25:05,908 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_lateral_mouvement_20260712_002505.pdf
+2026-07-12 00:28:56,377 [Executor] INFO — run_module: red_team.asrep_roasting.run_attack kwargs={'target': '192.168.56.12', 'domain': 'essos.local'}
+2026-07-12 00:28:56,380 [Loader] INFO — Module loaded: modules.red_team.asrep_roasting
+2026-07-12 00:28:57,019 [Executor] INFO — Result: status=info elapsed=0.64s
+2026-07-12 00:28:57,054 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_asrep_roasting_20260712_002857.pdf
+2026-07-12 00:29:22,772 [Executor] INFO — run_module: red_team.pth.run_attack kwargs={'target': '192.168.56.10', 'domain': 'sevenkingdoms.local'}
+2026-07-12 00:29:22,775 [Loader] INFO — Module loaded: modules.red_team.pth
+2026-07-12 00:29:23,288 [Executor] INFO — Result: status=partial elapsed=0.51s
+2026-07-12 00:29:23,313 [ReportGenerator] INFO — PDF report generated: /home/kali/Desktop/AD---Attack-Defense-Simulation-test-v2/reports/red_pth_20260712_002923.pdf

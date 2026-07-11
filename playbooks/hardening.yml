@@ -1,0 +1,184 @@
+---
+# AD Hardening Playbook
+# ====================
+# Remediates common Active Directory vulnerabilities discovered during red/blue team operations.
+#
+# Usage:
+#   ansible-playbook playbooks/hardening.yml -i hosts.ini
+#
+# Requirements:
+#   - ansible >= 2.9
+#   - python-ldap (on control machine)
+#   - Network access to DCs
+#
+# Safety:
+#   - This playbook modifies production AD — test in lab first
+#   - Includes check mode (--check) to preview changes without applying
+
+- name: "AD Hardening — Remediate Vulnerabilities"
+  hosts: domain_controllers
+  gather_facts: yes
+  vars:
+    domain_admin_user: "{{ ansible_user }}"
+    domain_admin_pass: "{{ ansible_password }}"
+    domain_name: "{{ ansible_domain | default('essos.local') }}"
+    dc_ip: "{{ ansible_host }}"
+  
+  tasks:
+    - name: "Verify DC connectivity"
+      win_ping:
+      register: dc_ping
+      failed_when: dc_ping.ping != "pong"
+    
+    # ── Password Policy Hardening ──────────────────────────────────────
+    - name: "Enforce strong password policy"
+      win_shell: |
+        $policy = @{
+          MinPasswordLength = 14
+          PasswordHistoryCount = 12
+          MaxPasswordAge = 90
+          MinPasswordAge = 1
+          LockoutThreshold = 5
+          LockoutDuration = 30
+        }
+        Set-ADDefaultDomainPasswordPolicy -Identity {{ domain_name }} @policy -Confirm:$false
+      register: pwd_policy
+      changed_when: "'Successfully set' in pwd_policy.stdout or pwd_policy.rc == 0"
+    
+    - name: "Display password policy changes"
+      debug:
+        msg: "Password policy updated: MinLen=14, History=12, MaxAge=90d, Lockout=5 attempts/30min"
+    
+    # ── Kerberos Hardening ─────────────────────────────────────────────
+    - name: "Enable Kerberos pre-authentication on all accounts"
+      win_shell: |
+        Get-ADUser -Filter "userAccountControl -band 4194304" -Properties userAccountControl |
+        ForEach-Object {
+          Set-ADUser -Identity $_.DistinguishedName -replace @{userAccountControl=$_.userAccountControl -bxor 4194304} -Confirm:$false
+        }
+      register: preauth_fix
+    
+    - name: "Disable unconstrained Kerberos delegation"
+      win_shell: |
+        Get-ADComputer -Filter "userAccountControl -band 524288" -Properties userAccountControl |
+        ForEach-Object {
+          $newUAC = $_.userAccountControl -bxor 524288
+          Set-ADComputer -Identity $_ -Replace @{userAccountControl=$newUAC} -Confirm:$false
+        }
+      register: unconstrained_fix
+    
+    # ── LLMNR/NetBIOS Hardening ───────────────────────────────────────
+    - name: "Disable LLMNR on DCs"
+      win_regedit:
+        path: "HKLM:\\Software\\Policies\\Microsoft\\Windows NT\\DNSClient"
+        name: "EnableMulticast"
+        data: 0
+        type: dword
+      register: llmnr_disabled
+    
+    - name: "Disable SMB Null Sessions"
+      win_regedit:
+        path: "HKLM:\\System\\CurrentControlSet\\Control\\Lsa"
+        name: "RestrictNullSessAccess"
+        data: 1
+        type: dword
+      register: nullsess_disabled
+    
+    # ── SMB Signing ────────────────────────────────────────────────────
+    - name: "Enforce SMB signing on DCs"
+      win_shell: |
+        Set-SmbServerConfiguration -RequireSecuritySignature $true -Confirm:$false
+        Set-SmbServerConfiguration -SigningRequired $true -Confirm:$false
+      register: smb_signing
+    
+    # ── Guest Account ──────────────────────────────────────────────────
+    - name: "Disable built-in Guest account"
+      win_shell: |
+        Disable-ADAccount -Identity Guest -Confirm:$false
+      register: guest_disabled
+      ignore_errors: yes  # May already be disabled
+    
+    # ── Admin Account Cleanup ──────────────────────────────────────────
+    - name: "Find and report stale Domain Admin accounts"
+      win_shell: |
+        $threshold = (Get-Date).AddDays(-90)
+        Get-ADUser -Filter "lastLogonTimestamp -lt '*'" -SearchBase "CN=Users,{{ domain_name }}" |
+        Where-Object {
+          (Get-ADGroup -Filter 'Member -eq $_' | Where-Object Name -eq 'Domain Admins') -and
+          $_.LastLogonDate -lt $threshold
+        } |
+        Select-Object Name, LastLogonDate
+      register: stale_admins
+    
+    - name: "Report stale admin accounts (manual review required)"
+      debug:
+        msg: "Review and disable stale admin accounts: {{ stale_admins.stdout }}"
+      when: stale_admins.stdout != ""
+    
+    # ── Audit Logging ──────────────────────────────────────────────────
+    - name: "Enable AD object access auditing"
+      win_shell: |
+        $auditPolicy = @{
+          AuditPolicyDisplayName = 'Audit Directory Service Changes'
+          AuditPolicyCategory = 'DS Access'
+          Success = $true
+          Failure = $true
+        }
+        auditpol.exe /set /subcategory:"Directory Service Changes" /success:enable /failure:enable
+      register: audit_dsc
+    
+    - name: "Enable logon event auditing"
+      win_shell: |
+        auditpol.exe /set /subcategory:"Logon" /success:enable /failure:enable
+        auditpol.exe /set /subcategory:"Account Lockout" /success:enable /failure:enable
+      register: audit_logon
+    
+    # ── Security Event Log Size ────────────────────────────────────────
+    - name: "Increase Security Event Log retention (512 MB)"
+      win_shell: |
+        $logName = 'Security'
+        $log = Get-WmiObject Win32_NTEventlogFile -Filter "LogFileName='$logName'"
+        $log.MaxFileSize = 536870912  # 512 MB in bytes
+        $log.Put()
+      register: log_size
+    
+    # ── PrintNightmare Mitigation ──────────────────────────────────────
+    - name: "Disable Print Spooler on DCs (optional, requires restart)"
+      win_service:
+        name: Spooler
+        state: stopped
+        start_mode: disabled
+      register: spooler_disabled
+      ignore_errors: yes
+    
+    # ── Summary ────────────────────────────────────────────────────────
+    - name: "Hardening Complete"
+      debug:
+        msg: |
+          ✓ Hardening playbook executed successfully
+          
+          Changes applied:
+          - Password policy (MinLen=14, History=12, MaxAge=90d, Lockout=5/30m)
+          - Kerberos pre-authentication enabled
+          - Unconstrained delegation disabled
+          - LLMNR disabled
+          - SMB signing enforced
+          - Guest account disabled
+          - Audit logging enabled (directory service + logon)
+          - Security event log size increased to 512 MB
+          
+          Manual review required:
+          - Stale admin accounts: {{ stale_admins.stdout if stale_admins.stdout else 'None found' }}
+          - Print Spooler: {{ spooler_disabled.failed | default(false) | ternary('Failed (check permissions)', 'Disabled') }}
+          
+          Next steps:
+          1. Test user authentication against hardened DCs
+          2. Monitor Event IDs 4724, 4725, 4740 for lockout issues
+          3. Document any applications that require legacy authentication
+          4. Schedule a reboot of all DCs to apply remaining security updates
+      when: not ansible_check_mode
+    
+    - name: "(CHECK MODE) — Preview changes without applying"
+      debug:
+        msg: "Run without --check to apply these hardening changes"
+      when: ansible_check_mode

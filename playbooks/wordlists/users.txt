@@ -1,0 +1,7 @@
+vagrant
+khal.drogo
+daenerys.targaryen
+jorah.mormont
+viserys.targaryen
+sql_svc
+missandei

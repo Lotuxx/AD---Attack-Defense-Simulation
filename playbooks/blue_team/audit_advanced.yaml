@@ -1,0 +1,41 @@
+name: "Audit Blue Team — Avancé"
+description: >
+  Audit complet : mots de passe, privilèges, GPO, réseau, logs.
+  Inclut la détection de patterns d'attaque dans les logs.
+
+steps:
+  - name: "Audit des mots de passe"
+    module: "blue_team.audit_passwords"
+    function: "run_audit"
+    delay_s: 1
+    stop_on_fail: false
+    params: {}
+
+  - name: "Audit des comptes à privilèges"
+    module: "blue_team.audit_privileges"
+    function: "run_audit"
+    delay_s: 1
+    stop_on_fail: false
+    params: {}
+
+  - name: "Audit des GPO et configurations AD"
+    module: "blue_team.audit_gpo"
+    function: "run_audit"
+    delay_s: 1
+    stop_on_fail: false
+    params: {}
+
+  - name: "Audit réseau (LLMNR, SMB, IPv6)"
+    module: "blue_team.audit_network"
+    function: "run_audit"
+    delay_s: 1
+    stop_on_fail: false
+    params: {}
+
+  - name: "Analyse des logs (48h)"
+    module: "blue_team.audit_logs"
+    function: "run_audit"
+    delay_s: 2
+    stop_on_fail: false
+    params:
+      hours: 48
