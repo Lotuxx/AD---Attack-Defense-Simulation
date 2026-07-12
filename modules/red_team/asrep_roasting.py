@@ -16,6 +16,21 @@ from datetime import datetime
 
 from utils.format_utils import print_info, print_success, print_warning, print_error
 
+ATTACK_META = {
+    "name":      "AS-REP Roasting",
+    "phase":     "Credential Access",
+    "mitre":     "T1558.004",
+    "risk":      "Élevé",
+    "event_ids": [4768],
+    "tools":     ["Impacket (GetNPUsers.py)", "Hashcat"],
+    "description": (
+        "Les comptes dont la pré-authentification Kerberos est désactivée répondent à "
+        "une demande de ticket (AS-REQ) sans vérifier l'identité du demandeur. Le TGT "
+        "retourné est chiffré avec le hash du mot de passe du compte ciblé, ce qui "
+        "permet de le récupérer et de le craquer hors-ligne, comme pour le Kerberoasting."
+    ),
+}
+
 
 def run_attack(target: str = None, domain: str = "domain.local", user: str = None,
                password: str = None, **kwargs) -> dict:
@@ -63,6 +78,28 @@ def run_attack(target: str = None, domain: str = "domain.local", user: str = Non
                 "title":       f"{len(hashes)} AS-REP roastable account(s)",
                 "description": "Comptes : " + ", ".join([h["username"] for h in hashes[:5]]),
                 "mitigation":  "Activer la pré-authentification Kerberos sur tous les comptes utilisateur.",
+                "mitigation_technique": (
+                    "1. Activer la pré-authentification Kerberos sur tous les comptes (par défaut).\n"
+                    "2. Via PowerShell : Get-ADUser -Filter {(userAccountControl -band 4194304) -eq 4194304} | "
+                    "Set-ADUser -UserAuthenticationRequirement NOT_REQUIRED.\n"
+                    "3. Via GPO : Computer Configuration > Windows Settings > Security Settings > Local Policies > "
+                    "Security Options > 'Network security: Kerberos preauthentication required' → Enable.\n"
+                    "4. Auditer régulièrement les comptes sans pré-auth.\n"
+                    "5. Monitorer Event ID 4768 (TGT Request) pour les requêtes sans pré-auth anormales."
+                ),
+                "mitigation_humaine": (
+                    "Former les architectes AD à ne jamais désactiver la pré-authentification Kerberos sauf pour "
+                    "compatibilité historique strictement justifiée et documentée. Intégrer une vérification de ce "
+                    "paramètre à la revue de sécurité de tout nouveau déploiement ou modification d'AD. Mettre en place "
+                    "une procédure de révision annuelle des comptes sans pré-auth."
+                ),
+                "impact": (
+                    f"{len(hashes)} compte(s) vulnérable(s) à AS-REP Roasting : un attaquant peut demander un TGT "
+                    "sans authentification et craquer le hash NTLM hors-ligne pour obtenir le mot de passe en clair."
+                ),
+                "logs_siem": [
+                    {"event_id": 4768, "description": "Kerberos TGT Request without pre-auth — indicateur de AS-REP Roasting"},
+                ],
                 "event_ids":   [4768],
             })
         else:
@@ -80,10 +117,16 @@ def run_attack(target: str = None, domain: str = "domain.local", user: str = Non
             "status":       "success" if roastable_accounts else "info",
             "elapsed_s":    (datetime.now() - datetime.now()).total_seconds(),
             "timestamp":    datetime.now().isoformat(),
+            "attack_meta":  ATTACK_META,
             "findings":     findings,
             "artifacts": {
                 "roastable_accounts": roastable_accounts,
             },
+            "iocs": [{
+                "type":        "event_id",
+                "value":       4768,
+                "description": "Kerberos AS-REQ sans pré-authentification — surveiller le volume anormal",
+            }],
             "summary": {
                 "total_roastable": len(roastable_accounts),
             }
@@ -132,6 +175,7 @@ def _error(message: str) -> dict:
         "module":   "red_team.asrep_roasting",
         "status":   "error",
         "message":  message,
+        "attack_meta": ATTACK_META,
         "findings": [{
             "risk":        "Élevé",
             "title":       "AS-REP Roasting échoué",
