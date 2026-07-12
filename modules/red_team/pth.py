@@ -41,6 +41,12 @@ ATTACK_META = {
     "risk":      "Critique",
     "event_ids": [4624, 4625, 4648],
     "tools":     ["Impacket (psexec/wmiexec)", "CrackMapExec", "Mimikatz"],
+    "description": (
+        "Le protocole NTLM authentifie avec le hash du mot de passe plutôt qu'avec le mot "
+        "de passe en clair. Un attaquant qui a obtenu un hash NTLM (via DCSync, dump LSASS, "
+        "etc.) peut donc s'authentifier directement avec ce hash, sans jamais avoir besoin "
+        "de le craquer."
+    ),
 }
 
 
@@ -122,6 +128,30 @@ def run_attack(target: str = "192.168.56.11", domain: str = "domain.local",
                 "3. Bloquer WMI distant via pare-feu (port TCP 135 + dynamique).\n"
                 "4. Utiliser LAPS pour des mots de passe locaux uniques."
             ),
+            "mitigation_technique": (
+                "1. Désactiver NTLM : Computer Configuration > Policies > Security Settings > "
+                "Local Policies > Security Options > Network security: Restrict NTLM = DENY ALL.\n"
+                "2. Forcer Kerberos via GPO (Network Security: Restrict NTLM: Outgoing NTLM traffic).\n"
+                "3. Activer Credential Guard via Group Policy (déployer sur tous les serveurs).\n"
+                "4. Bloquer les ports WMI (TCP 135, TCP 4...) via pare-feu ou ACLs réseau.\n"
+                "5. Monitorer Event ID 4624 type 3/9 anormal, 4648 (Explicit Credentials).\n"
+                "6. Implémenter SMB Signing obligatoire."
+            ),
+            "mitigation_humaine": (
+                "Former les administrateurs que le Pass-the-Hash met en péril les hashes des comptes admin. "
+                "Établir une procédure : ne jamais stocker les hashes d'Admin/DA, utiliser des comptes spécifiques "
+                "pour les tâches admin. Auditer mensuellement qui a accès à WMI. Intégrer un test d'accès WMI "
+                "au checklist de sécurité post-déploiement."
+            ),
+            "impact": (
+                f"Authentification réussie sur {target} avec un hash NTLM sans connaître le mot de passe. "
+                "Exécution de commande à distance, accès au serveur, escalade vers système d'autres machines."
+            ),
+            "logs_siem": [
+                {"event_id": 4624, "description": "Logon avec hash (type 3 ou 9, NTLMv2)"},
+                {"event_id": 4648, "description": "Explicit Credentials used — indicateur de PtH"},
+                {"event_id": 4688, "description": "Process creation anormale via WMI"},
+            ],
             "event_ids": [4624, 4648],
         })
 
@@ -141,7 +171,32 @@ def run_attack(target: str = "192.168.56.11", domain: str = "domain.local",
                 "2. Restreindre les partages administratifs (AutoShareServer=0).\n"
                 "3. Monitorer Event ID 4624 type logon 3 + compte Administrator."
             ),
-            "event_ids": [4624, 7045],
+            "mitigation_technique": (
+                "1. Restreindre les partages administratifs : Computer Configuration > Policies > "
+                "Administrative Templates > Network > Lanman Server > AutoShareServer = 0.\n"
+                "2. Bloquer ADMIN$ et IPC$ via ACL ou restiction de partages.\n"
+                "3. Désactiver NTLM obligatoirement (forcer Kerberos).\n"
+                "4. SMB Signing obligatoire sur tous les serveurs.\n"
+                "5. Bloquer les ports PsExec (TCP 445 administratifs) via pare-feu.\n"
+                "6. Monitorer Event ID 4624 (logon SYSTEM anormal), 7045 (service creation), 4688 (process)."
+            ),
+            "mitigation_humaine": (
+                "Ne jamais utiliser les hashes d'Administrator pour des tâches automatisées. Créer des comptes "
+                "de service spécifiques avec privilèges minimaux. Former les admins à ne pas exécuter de tâches "
+                "critiques avec des hashes ou cleartext credentials. Auditer mensuellement l'accès aux partages ADMIN$. "
+                "Établir une procédure d'alerte pour tout Event ID 7045 (service install) suspecte."
+            ),
+            "impact": (
+                "Accès SYSTEM complet sur le serveur cible. Création de services persistants, accès à toutes les "
+                "données, escalade verso d'autres serveurs/domaines, exfiltration, destruction."
+            ),
+            "logs_siem": [
+                {"event_id": 4624, "description": "Logon type 3 anormal avec compte privilegié (PsExec)"},
+                {"event_id": 4648, "description": "Explicit Credentials — indicateur de PtH"},
+                {"event_id": 7045, "description": "Service PSEXESVC installed — pattern de PsExec"},
+                {"rule": "Wazuh 65010 (exemple)", "description": "SMB admin share access pattern"},
+            ],
+            "event_ids": [4624, 7045, 4648],
         })
 
     if not access:
