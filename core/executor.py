@@ -1,14 +1,55 @@
+# ============================================================================
+# Core — Executor Engine
+# ============================================================================
+#
+# Responsible for executing framework modules and YAML playbooks.
+#
+# The Executor is the central execution layer of the AD Attack & Defense
+# framework. It connects:
+#
+#   CLI / Dashboard
+#          |
+#          v
+#      Executor
+#          |
+#          +--> ModuleLoader (dynamic module loading)
+#          |
+#          +--> Attack / Audit modules
+#          |
+#          +--> DatabaseManager (execution tracking)
+#          |
+#          +--> ReportGenerator (result reporting)
+#
+# Main responsibilities:
+#   - Dynamically load and execute Python modules
+#   - Inject centralized configuration values
+#   - Execute YAML-based attack/audit workflows
+#   - Measure execution time
+#   - Normalize module results
+#   - Store Red Team and Blue Team activity in SQLite
+#
+# ============================================================================
+
 """
 Executor
 ========
-Responsible for running framework modules and YAML playbooks.
 
-The Executor acts as the bridge between the CLI layer and the individual
-attack/audit modules. It handles:
-  - Dynamic module invocation via ModuleLoader
-  - YAML playbook parsing and step-by-step execution
-  - Timing and status reporting
-  - Structured result collection for report generation
+Execution engine of the AD Attack & Defense Simulation Framework.
+
+The Executor acts as the bridge between the user interfaces (CLI, dashboard)
+and the individual framework modules.
+
+It is responsible for:
+
+    - Dynamic module invocation through ModuleLoader
+    - YAML playbook parsing and sequential execution
+    - Configuration injection
+    - Execution timing and status reporting
+    - Result normalization
+    - Database logging for Red Team and Blue Team operations
+
+Every attack, audit, or validation module executed by the framework goes
+through this component.
 """
 
 import os
@@ -25,52 +66,146 @@ from utils.format_utils import (
     print_step, print_separator, Colors
 )
 
+
+# Global logger dedicated to executor activity.
+# Allows tracking execution flow, errors, and debugging information.
 logger = FrameworkLogger("Executor")
 
-# Playbooks are stored in the playbooks/ directory at project root
+
+
+# Location of YAML playbooks.
+#
+# Playbooks are stored outside the core package:
+#
+# project/
+# ├── core/
+# │   └── executor.py
+# └── playbooks/
+#     ├── red_team/
+#     ├── blue_team/
+#     └── purple_team/
+#
 PLAYBOOKS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "playbooks")
 
 
 class Executor:
     """
-    Executes framework modules and YAML playbooks.
+    Main execution controller for framework modules.
+
+    The Executor receives requests from the CLI or other interfaces,
+    loads the required module dynamically, executes it, and returns
+    a standardized result.
 
     Args:
-        loader  (ModuleLoader): Instance used to dynamically load Python modules.
-        verbose (bool)        : If True, print extra debug information during execution.
+        loader (ModuleLoader):
+            Responsible for importing framework modules dynamically.
+
+        verbose (bool):
+            Enables additional debug output when required.
+
+    Attributes:
+        loader:
+            Module loading manager.
+
+        verbose:
+            Debug mode flag.
+
+        config:
+            Centralized framework configuration loaded from config.yaml
+            and environment variables.
     """
 
     def __init__(self, loader: ModuleLoader, verbose: bool = False):
+        """
+        Initialize the execution engine.
+
+        The configuration object is loaded once here and reused during
+        module execution to avoid duplicated configuration parsing.
+
+        Args:
+            loader:
+                ModuleLoader instance used to dynamically import modules.
+
+            verbose:
+                Enable verbose execution logs.
+        """
+
         self.loader  = loader
         self.verbose = verbose
+
+        # Centralized configuration provider.
+        # Handles:
+        #   - Active Directory credentials
+        #   - Wazuh settings
+        #   - OpenSearch configuration
+        #   - Network targets
         self.config  = Config()
 
     def run_module(self, module_path: str, func_name: str, **kwargs) -> dict:
         """
-        Load a module dynamically and call one of its functions.
+        Execute a framework module dynamically.
 
-        The called function is expected to return a standardised result dict
-        containing at least: status, findings, timestamp.
+        Workflow:
+
+            1. Load the requested Python module.
+            2. Retrieve the requested function.
+            3. Inject missing configuration values.
+            4. Execute the function.
+            5. Normalize the returned result.
+            6. Store execution information.
+            7. Return the final result.
+
+        The executed function must return a dictionary containing at least:
+
+            {
+                "status": "...",
+                "findings": [...]
+            }
 
         Args:
-            module_path (str): Dotted module path relative to modules/,
-                               e.g. 'blue_team.audit_passwords'
-            func_name   (str): Name of the function to call, e.g. 'run_audit'
-            **kwargs         : Optional keyword arguments forwarded to the function
-                               (e.g. target, domain, username)
+            module_path (str):
+                Module path relative to the modules directory.
+
+                Example:
+                    blue_team.audit_passwords
+
+            func_name (str):
+                Function name to execute.
+
+                Example:
+                    run_audit
+
+            **kwargs:
+                Arguments forwarded to the module function.
+
+                Examples:
+                    target
+                    domain
+                    username
 
         Returns:
-            dict: Standardised result dict with status, findings, elapsed time, etc.
+            dict:
+                Standardized execution result.
         """
+
         print_info(f"Executing: modules.{module_path}.{func_name}()")
         logger.info(f"run_module: {module_path}.{func_name} kwargs={kwargs}")
 
-        # Dynamically load the module
+        # ------------------------------------------------------------------
+        # Dynamic module loading
+        # ------------------------------------------------------------------
+        #
+        # Modules are not imported statically.
+        # This allows:
+        #   - Easy addition of new attacks/audits
+        #   - Playbook-driven execution
+        #   - Plugin-like architecture
+        #
         mod = self.loader.load(module_path)
         if mod is None:
             return self._error_result(module_path, "Module not found")
 
-        # Retrieve the target function from the module
+        # Retrieve the requested function from the loaded module.
         func = getattr(mod, func_name, None)
         if func is None:
             msg = f"Function '{func_name}' not found in {module_path}"
@@ -78,9 +213,18 @@ class Executor:
             logger.error(msg)
             return self._error_result(module_path, msg)
 
-        # Execute the function and measure elapsed time
+        # ------------------------------------------------------------------
+        # Module execution
+        # ------------------------------------------------------------------
         start = time.time()
+
         try:
+            # Inject default values:
+            #   user
+            #   password
+            #   domain
+            #
+            # Values already provided by the caller are preserved.
             kwargs  = self.config.apply_defaults(kwargs)
             result  = func(**kwargs)
             elapsed = round(time.time() - start, 2)
