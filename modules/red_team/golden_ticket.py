@@ -17,6 +17,23 @@ from datetime import datetime, timedelta
 
 from utils.format_utils import print_info, print_success, print_warning, print_error
 
+ATTACK_META = {
+    "name":      "Golden Ticket",
+    "phase":     "Persistence",
+    "mitre":     "T1558.001",
+    "risk":      "Critique",
+    "event_ids": [4769, 4624],
+    "tools":     ["Impacket (ticketer.py)", "Impacket (psexec.py)"],
+    "description": (
+        "À partir du hash NTLM du compte krbtgt (obtenu via un DCSync préalable), un "
+        "Ticket Granting Ticket (TGT) est forgé de toutes pièces pour n'importe quel "
+        "utilisateur, avec une durée de vie arbitraire. Ce ticket forgé est accepté par "
+        "le domaine comme légitime et survit même à un changement de mot de passe de "
+        "l'utilisateur usurpé — seule la rotation du mot de passe krbtgt lui-même "
+        "l'invalide."
+    ),
+}
+
 
 def _load_config() -> dict:
     import os, yaml
@@ -164,7 +181,31 @@ def run_attack(target: str = None, domain: str = "domain.local", krbtgt_hash: st
                     "3. Monitor for 4769 (TGS request) events. "
                     "4. Force all users to re-authenticate immediately."
                 ),
-                "event_ids":   [4769],  # TGS request
+                "mitigation_technique": (
+                    "1. Rotation krbtgt IMMÉDIATE : Reset krbtgt password DEUX FOIS d'affilée (purge cache).\n"
+                    "2. Via PowerShell : Set-ADAccountPassword -Identity krbtgt -NewPassword (New-Object...) (×2).\n"
+                    "3. Monitoring : Détecter les TGT avec durée de vie anormale (>8h normalement).\n"
+                    "4. Audit : Exporter tous les tickets Kerberos et analyser les TGTs suspects.\n"
+                    "5. Surveiller l'absence anormale de 4768 (TGT Request) couplée à des 4624 (Logon SYSTEM).\n"
+                    "6. Implémenter Kerberos armoring (FAST) pour résister aux Golden Tickets."
+                ),
+                "mitigation_humaine": (
+                    "La rotation du krbtgt doit être planifiée et testée annuellement en laboratoire. "
+                    "Intégrer la rotation à la procédure de maintenance AD critiques. Former le SOC à reconnaître "
+                    "les patterns de Golden Ticket (logons SYSTEM anormaux, TGTs longs). Établir une procédure "
+                    "d'escalade immédiate en cas de suspicion de Golden Ticket. Auditer les droits krbtgt mensuellement."
+                ),
+                "impact": (
+                    "Accès total au domaine indéfiniment : le ticket forgé contient tous les SIDs (Domain Admin, etc.), "
+                    "valide pendant 1 an, persiste après rotation du krbtgt. Attaquant peut accéder à TOUS les serveurs, "
+                    "comptes, services, exfiltrer toutes les données, escalader vers la forêt entière."
+                ),
+                "logs_siem": [
+                    {"event_id": 4624, "description": "Logon avec TGT forgé — type 3 ou 9 anormal"},
+                    {"event_id": 4672, "description": "Special Privileges Assigned — indicateur de compte admin utilisé"},
+                    {"event_id": 4769, "description": "Absence anormale de 4768/TGT Request couplée à 4624 (Golden Ticket indicator)"},
+                ],
+                "event_ids":   [4624, 4672, 4769],
             })
         else:
             return _error(f"Ticket file not created at {ticket_file}")
@@ -190,6 +231,7 @@ def run_attack(target: str = None, domain: str = "domain.local", krbtgt_hash: st
             "status":       "success",
             "elapsed_s":    5.0,
             "timestamp":    datetime.now().isoformat(),
+            "attack_meta":  ATTACK_META,
             "findings":     findings,
             "artifacts": {
                 "ticket_path":      ticket_path,
@@ -198,6 +240,11 @@ def run_attack(target: str = None, domain: str = "domain.local", krbtgt_hash: st
                 "ticket_lifetime":  "8760 hours (1 year)",
                 "usage_command":    f"export KRB5CCNAME={ticket_file} && impacket-psexec -k -no-pass {domain}/{username}@<target>",
             },
+            "iocs": [{
+                "type":        "event_id",
+                "value":       4769,
+                "description": "Tickets Kerberos à durée de vie anormalement longue — indicateur de Golden Ticket",
+            }],
             "summary": {
                 "ticket_generated": True,
                 "persistence_level": "Maximum (persists across password changes)",
@@ -253,6 +300,7 @@ def _build_result(status: str, domain: str, findings: list, ticket_path) -> dict
         "module":       "red_team.golden_ticket",
         "status":       status,
         "timestamp":    datetime.now().isoformat(),
+        "attack_meta":  ATTACK_META,
         "domain":       domain,
         "findings":     findings,
         "artifacts": {
@@ -268,6 +316,7 @@ def _error(message: str) -> dict:
         "module":   "red_team.golden_ticket",
         "status":   "error",
         "message":  message,
+        "attack_meta": ATTACK_META,
         "findings": [{
             "risk":        "Critique",
             "title":       "Golden Ticket generation failed",
