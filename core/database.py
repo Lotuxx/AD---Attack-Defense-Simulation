@@ -93,18 +93,18 @@ class DatabaseManager:
 
     def __init__(self, db_path: str = DB_PATH):
         """
-    Initialize the database manager.
+        Initialize the database manager.
 
-    Steps:
-        1. Store database location.
-        2. Create reports directory if missing.
-        3. Initialize database schema.
-        4. Insert default attack catalog.
+        Steps:
+            1. Store database location.
+            2. Create reports directory if missing.
+            3. Initialize database schema.
+            4. Insert default attack catalog.
 
-    Args:
-        db_path:
-            Path of the SQLite database file.
-    """
+        Args:
+            db_path:
+                Path of the SQLite database file.
+        """
         
         self.db_path = db_path
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
@@ -112,18 +112,18 @@ class DatabaseManager:
 
     def _connect(self):
         """
-    Create a SQLite database connection.
+        Create a SQLite database connection.
 
-    Row factory is configured so query results behave like dictionaries:
+        Row factory is configured so query results behave like dictionaries:
 
-        row["attack_name"]
+            row["attack_name"]
 
-    instead of:
+        instead of:
 
-        row[0]
+            row[0]
 
-    This improves readability throughout the framework.
-    """
+        This improves readability throughout the framework.
+        """
         
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
@@ -131,33 +131,33 @@ class DatabaseManager:
 
     def _init_db(self):
         """
-Create the framework database schema.
+        Create the framework database schema.
 
-The schema contains four main entities:
+        The schema contains four main entities:
 
-    attacks:
-        Static catalog of supported attack techniques.
+            attacks:
+                Static catalog of supported attack techniques.
 
-    executions:
-        History of Red Team simulations.
+            executions:
+                History of Red Team simulations.
 
-    findings:
-        Blue Team audit results.
+            findings:
+                Blue Team audit results.
 
-    detections:
-        Purple Team correlation between attacks and SIEM alerts.
+            detections:
+                Purple Team correlation between attacks and SIEM alerts.
 
 
-The database is automatically created on first execution.
-"""
+        The database is automatically created on first execution.
+        """
         # ============================================================================
-# Database schema creation
-# ============================================================================
-# CREATE TABLE IF NOT EXISTS avoids destroying previous laboratory results.
-#
-# Existing execution history and findings are preserved between framework
-# launches.
-# ============================================================================
+        # Database schema creation
+        # ============================================================================
+        # CREATE TABLE IF NOT EXISTS avoids destroying previous laboratory results.
+        #
+        # Existing execution history and findings are preserved between framework
+        # launches.
+        # ============================================================================
         with self._connect() as conn:
             conn.executescript("""
                 CREATE TABLE IF NOT EXISTS attacks (
@@ -218,35 +218,35 @@ The database is automatically created on first execution.
 
     def _seed_attacks(self):
         """
-Populate the attack catalog with supported techniques.
+        Populate the attack catalog with supported techniques.
 
-This table represents the offensive techniques covered by the project CDC.
+        This table represents the offensive techniques covered by the project CDC.
 
-Each attack entry contains:
+        Each attack entry contains:
 
-    - MITRE ATT&CK technique ID.
-    - Required conditions.
-    - Exploitation method.
-    - Expected impact.
-    - Recommended mitigations.
-    - Detection event IDs.
+            - MITRE ATT&CK technique ID.
+            - Required conditions.
+            - Exploitation method.
+            - Expected impact.
+            - Recommended mitigations.
+            - Detection event IDs.
 
-INSERT OR IGNORE ensures:
-    - First launch creates the catalog.
-    - Future launches do not duplicate entries.
-"""
+        INSERT OR IGNORE ensures:
+            - First launch creates the catalog.
+            - Future launches do not duplicate entries.
+        """
 
         # ============================================================================
-# Supported attack catalogue
-# ============================================================================
-# The catalog acts as the knowledge base of the simulation framework.
-#
-# It allows:
-#   - Dashboard visualization.
-#   - Reporting.
-#   - Attack documentation.
-#   - MITRE ATT&CK mapping.
-# ============================================================================
+        # Supported attack catalogue
+        # ============================================================================
+        # The catalog acts as the knowledge base of the simulation framework.
+        #
+        # It allows:
+        #   - Dashboard visualization.
+        #   - Reporting.
+        #   - Attack documentation.
+        #   - MITRE ATT&CK mapping.
+        # ============================================================================
         attacks = [
             {
                 "name":          "Kerberoasting",
@@ -322,42 +322,42 @@ INSERT OR IGNORE ensures:
     # ── Red Team ──────────────────────────────────────────────────────────────
 
     # ============================================================================
-# Red Team data management
-# ============================================================================
-# Stores offensive simulation results:
-#
-#   - Executed attack.
-#   - Target machine.
-#   - Domain.
-#   - Execution status.
-#   - Duration.
-#   - Collected artifacts.
-#
-# This information is later used by:
-#   - Reports.
-#   - Dashboard.
-#   - Purple Team correlation.
-# ============================================================================
+    # Red Team data management
+    # ============================================================================
+    # Stores offensive simulation results:
+    #
+    #   - Executed attack.
+    #   - Target machine.
+    #   - Domain.
+    #   - Execution status.
+    #   - Duration.
+    #   - Collected artifacts.
+    #
+    # This information is later used by:
+    #   - Reports.
+    #   - Dashboard.
+    #   - Purple Team correlation.
+    # ============================================================================
 
     def log_execution(self, attack_name: str, target_ip: str, target_domain: str,
                       status: str, duration_s: float, findings: list, artifacts: dict = None) -> int:
         """
-Store a Red Team attack execution.
+        Store a Red Team attack execution.
 
-An execution record allows the framework to track:
-    - What attack was performed.
-    - Against which target.
-    - Whether it succeeded.
-    - How long it lasted.
-    - What artifacts were generated.
+        An execution record allows the framework to track:
+            - What attack was performed.
+            - Against which target.
+            - Whether it succeeded.
+            - How long it lasted.
+            - What artifacts were generated.
 
-Args:
-    findings:
-        List of findings generated during execution.
+        Args:
+            findings:
+                List of findings generated during execution.
 
-    artifacts:
-        Additional execution information stored as JSON.
-"""
+            artifacts:
+                Additional execution information stored as JSON.
+        """
 
         with self._connect() as conn:
             cursor = conn.execute("""
@@ -373,30 +373,30 @@ Args:
     # ── Blue Team ─────────────────────────────────────────────────────────────
 
     # ============================================================================
-# Blue Team findings storage
-# ============================================================================
-# Stores security weaknesses discovered during audits.
-#
-# Findings are later consumed by:
-#   - Dashboard risk views.
-#   - PDF reports.
-#   - Audit comparison functions.
-# ============================================================================
+    # Blue Team findings storage
+    # ============================================================================
+    # Stores security weaknesses discovered during audits.
+    #
+    # Findings are later consumed by:
+    #   - Dashboard risk views.
+    #   - PDF reports.
+    #   - Audit comparison functions.
+    # ============================================================================
 
     def log_findings(self, module: str, audit_type: str, findings: list,
                      target_ip: str = "", target_domain: str = ""):
         """
-Store Blue Team audit findings.
+        Store Blue Team audit findings.
 
-Each finding contains:
-    - Audit module.
-    - Risk level.
-    - Description.
-    - Recommended mitigation.
-    - Target information.
+        Each finding contains:
+            - Audit module.
+            - Risk level.
+            - Description.
+            - Recommended mitigation.
+            - Target information.
 
-One audit can generate multiple database entries.
-"""
+        One audit can generate multiple database entries.
+        """
 
         with self._connect() as conn:
             for f in findings:
@@ -415,31 +415,31 @@ One audit can generate multiple database entries.
     # ── Purple Team ───────────────────────────────────────────────────────────
 
     # ============================================================================
-# Purple Team detection storage
-# ============================================================================
-# Records the relationship between:
-#
-#       Simulated attack
-#              +
-#       SIEM detection result
-#
-# Used to measure defensive visibility.
-# ============================================================================
+    # Purple Team detection storage
+    # ============================================================================
+    # Records the relationship between:
+    #
+    #       Simulated attack
+    #              +
+    #       SIEM detection result
+    #
+    # Used to measure defensive visibility.
+    # ============================================================================
 
     def log_detection(self, execution_id: Optional[int], attack_name: str,
                       alert_count: int, rule_ids: list, detected: bool, detection_rate: float):
         """
-Store SIEM detection results.
+        Store SIEM detection results.
 
-Information stored:
-    - Related execution.
-    - Attack technique.
-    - Number of alerts generated.
-    - Detection rules triggered.
-    - Detection percentage.
+        Information stored:
+            - Related execution.
+            - Attack technique.
+            - Number of alerts generated.
+            - Detection rules triggered.
+            - Detection percentage.
 
-This allows measurement of SOC effectiveness.
-"""
+        This allows measurement of SOC effectiveness.
+       """
 
         with self._connect() as conn:
             conn.execute("""
@@ -453,16 +453,16 @@ This allows measurement of SOC effectiveness.
     # ── Statistiques ──────────────────────────────────────────────────────────
 
     # ============================================================================
-# Reporting and analytics functions
-# ============================================================================
-# These methods provide aggregated information for:
-#
-#   - CLI statistics command.
-#   - Streamlit dashboard.
-#   - Security reports.
-#
-# They transform raw database records into analyst-friendly information.
-# ============================================================================
+    # Reporting and analytics functions
+    # ============================================================================
+    # These methods provide aggregated information for:
+    #
+    #   - CLI statistics command.
+    #   - Streamlit dashboard.
+    #   - Security reports.
+    #
+    # They transform raw database records into analyst-friendly information.
+    # ============================================================================
 
     def get_attack_catalog(self) -> list:
         """Retourne le catalogue complet des attaques (CDC page 10)."""
