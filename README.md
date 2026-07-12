@@ -254,21 +254,6 @@ pytest tests/ -v
 pytest tests/ --cov=core --cov=modules --cov=utils --cov-report=term-missing
 ```
 
----
-
-## Lab Verification Checklist
-
-Before demoing to a jury, verify:
-
-- [ ] **DC reachable**: `ping <dc_ip>`
-- [ ] **Credentials work**: `./cli.py --mode blue --audit passwords` should connect to DC
-- [ ] **Wazuh running**: Check Wazuh dashboard, agents active
-- [ ] **SSH tunnel**: For Purple Team to work, ensure OpenSearch SSH tunnel config is set
-- [ ] **All reports generated**: `reports/` folder has recent PDFs
-- [ ] **Tests pass**: `pytest tests/ -q` → 68 passed
-
----
-
 ## Common Issues
 
 ### "PowerShell not found" (response modules)
