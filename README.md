@@ -239,22 +239,6 @@ Reports include:
 └── cli.py                      # Command-line interface
 ```
 
----
-
-## Key Improvements (This Version)
-
-✅ **C10 — Response modules work from Kali** (LDAP-based, not PowerShell)
-✅ **AS-REP Roasting** attack module (enumerate pre-auth disabled accounts)
-✅ **DCSync** attack module (replicate entire AD database)
-✅ **Ansible hardening playbook** (automated remediation)
-✅ **PDF-only reports** (professional, jury-friendly)
-✅ **SSH tunnel automation** (persistent, reusable)
-✅ **54% test coverage** (68 tests)
-✅ **Centralized Config class** (clean credential handling)
-✅ **Progress bar feedback** on long operations
-
----
-
 ## Testing
 
 ### Run All Tests
