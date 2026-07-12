@@ -39,6 +39,13 @@ ATTACK_META = {
     "risk":      "Élevé",
     "event_ids": [4625, 4648],
     "tools":     ["CrackMapExec", "Kerbrute", "PowerShell"],
+    "description": (
+        "Un seul mot de passe faible et courant est testé contre une large liste de comptes "
+        "du domaine, à un rythme volontairement lent pour rester sous le seuil de "
+        "verrouillage de compte. Contrairement au brute force classique, cette lenteur "
+        "réduit fortement le risque de blocage tout en maximisant les chances de trouver "
+        "un compte mal protégé."
+    ),
 }
 
 # Default password list — weak/common passwords often found in corporate environments
@@ -146,7 +153,30 @@ def run_attack(target: str = "domain.local", domain: str = "domain.local",
                 "3. Enforce lockout policy (≤10 attempts).\n"
                 "4. Deploy Microsoft Entra Password Protection."
             ),
-            "event_ids": [4624, 4648],
+            "mitigation_technique": (
+                "1. Implémenter un Account Lockout Policy strict : ≤10 tentatives ratées sur 30 min.\n"
+                "2. Configurer un délai de verrouillage ≥30 min.\n"
+                "3. Déployer Azure AD Password Protection (listes de mots de passe bannies).\n"
+                "4. Activer MFA pour tous les comptes (surtout les admins).\n"
+                "5. Surveiller les 4625 en temps réel et déclencher des alertes sur volume anormal."
+            ),
+            "mitigation_humaine": (
+                "1. Sensibiliser tous les utilisateurs à ne pas réutiliser des mots de passe faibles/communs.\n"
+                "2. Former l'équipe IT à vérifier la complexité réelle des mots de passe (>12 caractères, mélangé).\n"
+                "3. Établir une procédure de réinitialisation immédiate des comptes compromis.\n"
+                "4. Mettre en place une formation annuelle obligatoire sur la sécurité des mots de passe.\n"
+                "5. Ajouter une astreinte SOC pour investiguer rapidement tout pic de 4625."
+            ),
+            "impact": (
+                f"Accès initial obtenu pour {len(valid_creds)} compte(s) : possibilité de "
+                "reconnaissance du réseau, mouvement latéral, escalade de privilèges, exfiltration de données."
+            ),
+            "logs_siem": [
+                {"event_id": 4625, "description": f"{total_attempts} événements d'authentification échouée (spraying pattern)"},
+                {"event_id": 4624, "description": f"{len(valid_creds)} authentifications réussies avec credentials faibles"},
+                {"rule": "Wazuh 18152", "description": "Multiple failed logons from same IP (si activée)"},
+            ],
+            "event_ids": [4624, 4625, 4648],
         })
 
     if locked_out:
@@ -155,6 +185,20 @@ def run_attack(target: str = "domain.local", domain: str = "domain.local",
             "title": f"{len(locked_out)} account(s) locked during the attack",
             "description": "Accounts: " + ", ".join(locked_out),
             "mitigation":  "Lockout policy is active — verify Event ID 4740 alerts in Wazuh.",
+            "mitigation_technique": (
+                "1. Vérifier que la politique de verrouillage est bien déployée sur tous les domaines.\n"
+                "2. Monitorrer les 4740 en temps réel.\n"
+                "3. Configurer des alertes automatiques pour débloquer les comptes après X minutes.\n"
+                "4. Intégrer la surveillance des lockouts à la procédure d'incident."
+            ),
+            "mitigation_humaine": (
+                "Informer les utilisateurs des risques de verrouillage lors des changements de mot de passe. "
+                "Établir une procédure rapide de déverrouillage avec le helpdesk."
+            ),
+            "impact": f"{len(locked_out)} compte(s) temporairement indisponibles, mais la politique de verrouillage a empêché d'obtenir l'accès.",
+            "logs_siem": [
+                {"event_id": 4740, "description": f"{len(locked_out)} comptes verrouillés"},
+            ],
             "event_ids":   [4740],
         })
 
@@ -167,6 +211,20 @@ def run_attack(target: str = "domain.local", domain: str = "domain.local",
             "Each round generates Event ID 4625 entries visible in the SIEM."
         ),
         "mitigation": "Monitor 4625 spikes from a single source IP.",
+        "mitigation_technique": (
+            "1. Surveiller les pics de 4625 depuis une même IP source.\n"
+            "2. Corréler avec les données de géolocalisation des IPs.\n"
+            "3. Déclencher une alerte si > 5 comptes différents avec 3+ failures en < 5 min.\n"
+            "4. Bloquer l'IP source automatiquement après X tentatives."
+        ),
+        "mitigation_humaine": (
+            "Mettre en place un runbook pour que le SOC réagisse rapidement aux patterns de spray détectés. "
+            "Communiquer à l'équipe réseau pour bloquer l'IP source rapidement."
+        ),
+        "impact": f"{total_attempts} tentatives d'authentification générées, indiquant une phase de reconnaissance/exploitation active.",
+        "logs_siem": [
+            {"event_id": 4625, "description": f"Volume: {total_attempts} failures"},
+        ],
         "event_ids":  [4625],
     })
 
