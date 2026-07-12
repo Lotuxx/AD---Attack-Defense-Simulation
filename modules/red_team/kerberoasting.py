@@ -41,6 +41,12 @@ ATTACK_META = {
     "risk":       "Critique",
     "event_ids":  [4769],
     "tools":      ["Impacket (GetUserSPNs.py)", "Rubeus", "PowerView"],
+    "description": (
+        "Tout utilisateur du domaine peut demander un ticket de service Kerberos (TGS) pour "
+        "n'importe quel compte disposant d'un SPN. Ce ticket est chiffré avec le hash NTLM du "
+        "compte de service, ce qui permet de le récupérer et de le craquer hors-ligne sans "
+        "déclencher de verrouillage de compte."
+    ),
 }
 
 
@@ -73,6 +79,20 @@ def run_attack(target: str = "domain.local", domain: str = "domain.local",
         "title":       f"{len(spn_accounts)} compte(s) avec SPN détecté(s)",
         "description": "Comptes : " + ", ".join(spn_accounts[:10]),
         "mitigation":  "Utiliser des Managed Service Accounts (gMSA) avec mots de passe longs automatiques.",
+        "mitigation_technique": (
+            "1. Migrer vers des Group Managed Service Accounts (gMSA) avec rotation automatique.\n"
+            "2. Fixer les mots de passe de service à 25+ caractères aléatoires.\n"
+            "3. Limiter la création de SPN à une whitelist stricte de comptes.\n"
+            "4. Auditer régulièrement les comptes SPN actifs."
+        ),
+        "mitigation_humaine": (
+            "Sensibiliser les équipes applicatives et les architectes infra à la dangerosité des comptes "
+            "SPN classiques. Intégrer le Kerberoasting risk dans la revue de sécurité des déploiements d'applications."
+        ),
+        "impact": "Énumération des comptes de service, compromission potentielle via craquage hors-ligne.",
+        "logs_siem": [
+            {"event_id": 4769, "description": "Kerberos Service Ticket Request — pic anormal attendu"},
+        ],
         "event_ids":   [4769],
     })
 
@@ -94,6 +114,23 @@ def run_attack(target: str = "domain.local", domain: str = "domain.local",
                 "3. Implémenter des gMSA (Group Managed Service Accounts).\n"
                 "4. Limiter les SPN aux comptes strictement nécessaires."
             ),
+            "mitigation_technique": (
+                "1. Forcer les gMSA pour tous les comptes de service nouveaux.\n"
+                "2. Implémenter une stratégie de mots de passe complexes (>25 car., renouvellement annuel).\n"
+                "3. Surveiller les 4769 en continu via SIEM et alerter sur volume anormal.\n"
+                "4. Exécuter du Kerberoasting offensif en boucle (en lab) pour tester la détection."
+            ),
+            "mitigation_humaine": (
+                "Former les administrateurs sur le Kerberoasting risk. Ajouter une étape dans la procédure "
+                "de création de compte de service : 'Vérifier si gMSA est applicable'. Intégrer la rotation "
+                "des mots de passe de service au calendrier de maintenace (ex. annuel). Ajouter une astreinte "
+                "pour l'investigation rapide des pics 4769."
+            ),
+            "impact": f"{len(hashes)} hash(es) de compte(s) de service extrait(s), craquables hors-ligne, menant potentiellement à un accès réseau SYSTEM.",
+            "logs_siem": [
+                {"event_id": 4769, "description": f"Volume {len(hashes)} de requêtes TGS capturées"},
+                {"rule": "Wazuh 60106", "description": "Anomalous TGS request volume (si activée)"},
+            ],
             "event_ids":   [4769],
         })
 
