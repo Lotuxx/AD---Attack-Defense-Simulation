@@ -1,8 +1,46 @@
-"""
-Streamlit Dashboard — AD Attack & Defense Visualization
-========================================================
-Run: streamlit run dashboard.py
-"""
+# ============================================================================
+# Streamlit Dashboard Application
+# ============================================================================
+# This module provides a graphical dashboard for monitoring the
+# Active Directory Attack & Defense Simulation Framework.
+#
+# The dashboard acts as the visualization layer of the project:
+#
+#   - It does not execute attacks or audits directly.
+#   - It retrieves execution results from the framework database.
+#   - It displays Red Team activity, Blue Team findings, Purple Team
+#     detection metrics, and global analytics.
+#
+# Data flow:
+#
+#       CLI / Framework modules
+#                 |
+#                 v
+#              Database
+#                 |
+#                 v
+#          Streamlit Dashboard
+#
+# Main dashboard sections:
+#
+#   📊 Overview:
+#       Global security posture summary.
+#
+#   🔴 Red Team:
+#       Attack execution history and statistics.
+#
+#   🔵 Blue Team:
+#       Security audit findings and risk analysis.
+#
+#   🟣 Purple Team:
+#       Detection effectiveness validation.
+#
+#   📈 Analytics:
+#       Long-term framework metrics.
+#
+#   ⚙️ Settings:
+#       Data export and dashboard information.
+# ============================================================================
 
 import streamlit as st
 import pandas as pd
@@ -10,10 +48,31 @@ from datetime import datetime
 import sys
 import os
 
+
+# ============================================================================
+# Project imports initialization
+# ============================================================================
+# Ensure that internal framework modules can be imported regardless of the
+# directory from which Streamlit is launched.
+# ============================================================================
+
 sys.path.insert(0, os.path.dirname(__file__))
 from core.database import DatabaseManager
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+
+# ============================================================================
+# Streamlit application configuration
+# ============================================================================
+# Defines global dashboard behavior:
+#
+# - Browser title.
+# - Page icon.
+# - Layout mode.
+# - Sidebar behavior.
+#
+# The wide layout is preferred because security dashboards usually display
+# tables, metrics and multiple visual components simultaneously.
+# ============================================================================
 
 st.set_page_config(
     page_title="AD Attack & Defense — Dashboard",
@@ -21,6 +80,19 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+
+# ============================================================================
+# Custom dashboard styling
+# ============================================================================
+# Streamlit allows custom CSS injection to improve readability.
+#
+# The style below mainly affects metric widgets:
+#
+# - Dark background for SOC-style visualization.
+# - Larger values for important security indicators.
+# - Improved contrast for analysts.
+# ============================================================================
 
 st.markdown("""
     <style>
@@ -42,22 +114,84 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ── DB ────────────────────────────────────────────────────────────────────────
+
+# ============================================================================
+# Database connection layer
+# ============================================================================
+# The dashboard reads framework data from the database.
+#
+# Streamlit's cache_resource decorator ensures that the database connection
+# is created once and reused between page refreshes.
+#
+# This avoids unnecessary reconnections and improves dashboard performance.
+# ============================================================================
 
 @st.cache_resource
 def get_db():
+    """
+    Initialize and return the framework database manager.
+
+    Returns:
+        DatabaseManager:
+            Database interface used to retrieve:
+            - attack history,
+            - audit findings,
+            - detection statistics,
+            - global metrics.
+    """
     return DatabaseManager()
 
 db = get_db()
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
+
+# ============================================================================
+# Dashboard navigation sidebar
+# ============================================================================
+# Provides navigation between the different security monitoring views.
+#
+# Each page corresponds to a security role:
+#
+#   Red Team:
+#       Offensive simulation analysis.
+#
+#   Blue Team:
+#       Defensive assessment and findings.
+#
+#   Purple Team:
+#       Detection validation.
+#
+#   Analytics:
+#       Long-term security metrics.
+# ============================================================================
 
 st.sidebar.markdown("# 🛡️ AD Security Lab")
 st.sidebar.markdown("---")
 
+
+# ============================================================================
+# Page 1 — Security Overview
+# ============================================================================
+# Provides a global SOC-style view of the environment:
+#
+# - Number of executed attacks.
+# - Attack success rate.
+# - Critical security findings.
+# - Detection effectiveness.
+#
+# This page gives analysts a quick understanding of the current security
+# posture of the simulated Active Directory environment.
+# ============================================================================
+
 page = st.sidebar.radio(
     "Navigation",
-    ["📊 Overview", "🔴 Red Team", "🔵 Blue Team", "🟣 Purple Team", "📈 Analytics", "⚙️ Settings"],
+    [
+        "📊 Overview", 
+        "🔴 Red Team", 
+        "🔵 Blue Team", 
+        "🟣 Purple Team", 
+        "📈 Analytics", 
+        "⚙️ Settings"
+        ],
 )
 
 st.sidebar.markdown("---")
@@ -65,7 +199,20 @@ st.sidebar.markdown(f"**Refresh:** {datetime.now().strftime('%H:%M:%S')}")
 if st.sidebar.button("🔄 Refresh"):
     st.rerun()
 
-# ── Page 1: Overview ──────────────────────────────────────────────────────────
+
+# ============================================================================
+# Page 1 — Security Overview
+# ============================================================================
+# Provides a global SOC-style view of the environment:
+#
+# - Number of executed attacks.
+# - Attack success rate.
+# - Critical security findings.
+# - Detection effectiveness.
+#
+# This page gives analysts a quick understanding of the current security
+# posture of the simulated Active Directory environment.
+# ============================================================================
 
 if page == "📊 Overview":
     st.title("🛡️ AD Attack & Defense — Live Dashboard")
@@ -123,7 +270,20 @@ if page == "📊 Overview":
     else:
         st.info("Aucun finding. Lancez un audit Blue Team.")
 
-# ── Page 2: Red Team ──────────────────────────────────────────────────────────
+
+# ============================================================================
+# Page 2 — Red Team Activity Monitoring
+# ============================================================================
+# Displays offensive simulation history:
+#
+# - Executed techniques.
+# - Targets.
+# - Execution status.
+# - Duration.
+#
+# Useful for evaluating attack coverage and validating the framework's
+# offensive capabilities.
+# ============================================================================
 
 elif page == "🔴 Red Team":
     st.title("🔴 Red Team — Historique des attaques")
@@ -191,7 +351,18 @@ elif page == "🔴 Red Team":
     else:
         st.info("Aucune attaque enregistrée.")
 
-# ── Page 3: Blue Team ─────────────────────────────────────────────────────────
+
+# ============================================================================
+# Page 3 — Blue Team Security Findings
+# ============================================================================
+# Displays defensive assessment results:
+#
+# - Audit modules executed.
+# - Risk levels.
+# - Security weaknesses discovered.
+#
+# Findings allow defenders to identify weaknesses in the AD environment.
+# ============================================================================
 
 elif page == "🔵 Blue Team":
     st.title("🔵 Blue Team — Audit de sécurité")
@@ -254,7 +425,21 @@ elif page == "🔵 Blue Team":
     else:
         st.info("Aucun finding. Lancez un audit Blue Team.")
 
-# ── Page 4: Purple Team ───────────────────────────────────────────────────────
+
+# ============================================================================
+# Page 4 — Purple Team Detection Validation
+# ============================================================================
+# Measures the effectiveness of security monitoring.
+#
+# Correlates:
+#
+#   Simulated attack activity
+#             +
+#   SIEM detection capability
+#
+# A high detection rate indicates that defensive controls successfully
+# identify offensive activity.
+# ============================================================================
 
 elif page == "🟣 Purple Team":
     st.title("🟣 Purple Team — Validation de détection")
@@ -295,7 +480,19 @@ elif page == "🟣 Purple Team":
     else:
         st.info("Aucune donnée de détection. Lancez le Purple Team.")
 
-# ── Page 5: Analytics ─────────────────────────────────────────────────────────
+
+# ============================================================================
+# Page 5 — Security Analytics
+# ============================================================================
+# Provides aggregated metrics:
+#
+# - Attack success trends.
+# - Findings statistics.
+# - Detection performance.
+# - Attack catalog information.
+#
+# Designed for evaluating the overall maturity of the simulated environment.
+# ============================================================================
 
 elif page == "📈 Analytics":
     st.title("📈 Analytics — Vue globale")
@@ -353,7 +550,18 @@ elif page == "📈 Analytics":
             use_container_width=True,
         )
 
-# ── Page 6: Settings ──────────────────────────────────────────────────────────
+
+# ============================================================================
+# Page 6 — Dashboard Settings & Export
+# ============================================================================
+# Provides operational utilities:
+#
+# - Export attack history.
+# - Export Blue Team findings.
+# - Display framework information.
+#
+# Export functionality allows analysts to reuse collected data for reports.
+# ============================================================================
 
 elif page == "⚙️ Settings":
     st.title("⚙️ Paramètres")
@@ -406,8 +614,12 @@ elif page == "⚙️ Settings":
             "avg_detection_rate": f"{stats.get('avg_detection_rate', 0):.0f}%",
         })
 
-# ── Footer ────────────────────────────────────────────────────────────────────
 
+# ============================================================================
+# Dashboard footer
+# ============================================================================
+# Displays project identification information.
+# ============================================================================
 st.markdown("---")
 st.markdown(
     "**AD Attack & Defense Simulation Framework** | "

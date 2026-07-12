@@ -1,13 +1,53 @@
 """
-Core — Database Manager
-========================
-Gestion de la base de données SQLite pour le framework AD Attack & Defense.
+Core — Database Management Layer
+=================================
 
-Tables :
-    - attacks     : Catalogue des attaques (CDC page 10)
-    - executions  : Historique des exécutions Red Team
-    - findings    : Findings Blue Team
-    - detections  : Alertes Wazuh par exécution
+This module provides the persistence layer of the AD Attack & Defense
+Simulation Framework.
+
+The database stores all information generated during simulations:
+
+    Red Team:
+        - Attack catalog.
+        - Attack execution history.
+        - Execution artifacts.
+
+    Blue Team:
+        - Security audit findings.
+        - Risk assessment results.
+
+    Purple Team:
+        - Wazuh detection results.
+        - Detection performance metrics.
+
+Data flow:
+
+        Attack / Audit Modules
+                 |
+                 v
+          DatabaseManager
+                 |
+                 v
+             SQLite DB
+                 |
+        +--------+---------+
+        |                  |
+     Dashboard          Reports
+
+
+Database location:
+    reports/attacks.db
+
+SQLite was selected because:
+    - The framework is designed for isolated security labs.
+    - No external database server is required.
+    - Easy portability between machines.
+
+The DatabaseManager class provides:
+    - Database initialization.
+    - Data insertion.
+    - Statistics calculation.
+    - Historical analysis.
 """
 
 import sqlite3
@@ -16,24 +56,108 @@ import json
 from datetime import datetime
 from typing import Optional
 
+# ============================================================================
+# Database location
+# ============================================================================
+# The SQLite database is stored inside the reports directory because:
+#
+#   - Reports and collected simulation data belong together.
+#   - The database remains local to the framework instance.
+#   - The project can be moved easily between lab environments.
+#
+# For production environments, this could be replaced by:
+#   - PostgreSQL,
+#   - MySQL,
+#   - Cloud database,
+#   - SIEM backend storage.
+# ============================================================================
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "reports", "attacks.db")
 
 
 class DatabaseManager:
-    """Gestionnaire de la base de données SQLite."""
+    """
+    Central database interface for the framework.
+
+    This class hides all SQLite operations from the rest of the project.
+
+    Other components should not directly execute SQL queries.
+    They should use DatabaseManager methods instead.
+
+    Responsibilities:
+        - Create database schema.
+        - Store execution results.
+        - Store findings.
+        - Store detection information.
+        - Provide statistics for dashboard/reporting.
+    """
 
     def __init__(self, db_path: str = DB_PATH):
+        """
+    Initialize the database manager.
+
+    Steps:
+        1. Store database location.
+        2. Create reports directory if missing.
+        3. Initialize database schema.
+        4. Insert default attack catalog.
+
+    Args:
+        db_path:
+            Path of the SQLite database file.
+    """
+        
         self.db_path = db_path
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
         self._init_db()
 
     def _connect(self):
+        """
+    Create a SQLite database connection.
+
+    Row factory is configured so query results behave like dictionaries:
+
+        row["attack_name"]
+
+    instead of:
+
+        row[0]
+
+    This improves readability throughout the framework.
+    """
+        
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         return conn
 
     def _init_db(self):
-        """Créer les tables si elles n'existent pas."""
+        """
+Create the framework database schema.
+
+The schema contains four main entities:
+
+    attacks:
+        Static catalog of supported attack techniques.
+
+    executions:
+        History of Red Team simulations.
+
+    findings:
+        Blue Team audit results.
+
+    detections:
+        Purple Team correlation between attacks and SIEM alerts.
+
+
+The database is automatically created on first execution.
+"""
+        # ============================================================================
+# Database schema creation
+# ============================================================================
+# CREATE TABLE IF NOT EXISTS avoids destroying previous laboratory results.
+#
+# Existing execution history and findings are preserved between framework
+# launches.
+# ============================================================================
         with self._connect() as conn:
             conn.executescript("""
                 CREATE TABLE IF NOT EXISTS attacks (
@@ -91,8 +215,38 @@ class DatabaseManager:
             """)
             self._seed_attacks()
 
+
     def _seed_attacks(self):
-        """Pré-remplir le catalogue des attaques (CDC page 10)."""
+        """
+Populate the attack catalog with supported techniques.
+
+This table represents the offensive techniques covered by the project CDC.
+
+Each attack entry contains:
+
+    - MITRE ATT&CK technique ID.
+    - Required conditions.
+    - Exploitation method.
+    - Expected impact.
+    - Recommended mitigations.
+    - Detection event IDs.
+
+INSERT OR IGNORE ensures:
+    - First launch creates the catalog.
+    - Future launches do not duplicate entries.
+"""
+
+        # ============================================================================
+# Supported attack catalogue
+# ============================================================================
+# The catalog acts as the knowledge base of the simulation framework.
+#
+# It allows:
+#   - Dashboard visualization.
+#   - Reporting.
+#   - Attack documentation.
+#   - MITRE ATT&CK mapping.
+# ============================================================================
         attacks = [
             {
                 "name":          "Kerberoasting",
@@ -164,11 +318,47 @@ class DatabaseManager:
                     VALUES (:name, :type, :mitre_id, :risk_level, :preconditions, :exploit, :impact, :mitigation, :tools, :event_ids)
                 """, attack)
 
+    
     # ── Red Team ──────────────────────────────────────────────────────────────
+
+    # ============================================================================
+# Red Team data management
+# ============================================================================
+# Stores offensive simulation results:
+#
+#   - Executed attack.
+#   - Target machine.
+#   - Domain.
+#   - Execution status.
+#   - Duration.
+#   - Collected artifacts.
+#
+# This information is later used by:
+#   - Reports.
+#   - Dashboard.
+#   - Purple Team correlation.
+# ============================================================================
 
     def log_execution(self, attack_name: str, target_ip: str, target_domain: str,
                       status: str, duration_s: float, findings: list, artifacts: dict = None) -> int:
-        """Enregistre une exécution d'attaque Red Team."""
+        """
+Store a Red Team attack execution.
+
+An execution record allows the framework to track:
+    - What attack was performed.
+    - Against which target.
+    - Whether it succeeded.
+    - How long it lasted.
+    - What artifacts were generated.
+
+Args:
+    findings:
+        List of findings generated during execution.
+
+    artifacts:
+        Additional execution information stored as JSON.
+"""
+
         with self._connect() as conn:
             cursor = conn.execute("""
                 INSERT INTO executions (attack_name, target_ip, target_domain, status, duration_s, findings_count, artifacts)
@@ -182,9 +372,32 @@ class DatabaseManager:
 
     # ── Blue Team ─────────────────────────────────────────────────────────────
 
+    # ============================================================================
+# Blue Team findings storage
+# ============================================================================
+# Stores security weaknesses discovered during audits.
+#
+# Findings are later consumed by:
+#   - Dashboard risk views.
+#   - PDF reports.
+#   - Audit comparison functions.
+# ============================================================================
+
     def log_findings(self, module: str, audit_type: str, findings: list,
                      target_ip: str = "", target_domain: str = ""):
-        """Enregistre les findings d'un audit Blue Team."""
+        """
+Store Blue Team audit findings.
+
+Each finding contains:
+    - Audit module.
+    - Risk level.
+    - Description.
+    - Recommended mitigation.
+    - Target information.
+
+One audit can generate multiple database entries.
+"""
+
         with self._connect() as conn:
             for f in findings:
                 conn.execute("""
@@ -201,9 +414,33 @@ class DatabaseManager:
 
     # ── Purple Team ───────────────────────────────────────────────────────────
 
+    # ============================================================================
+# Purple Team detection storage
+# ============================================================================
+# Records the relationship between:
+#
+#       Simulated attack
+#              +
+#       SIEM detection result
+#
+# Used to measure defensive visibility.
+# ============================================================================
+
     def log_detection(self, execution_id: Optional[int], attack_name: str,
                       alert_count: int, rule_ids: list, detected: bool, detection_rate: float):
-        """Enregistre une détection Wazuh."""
+        """
+Store SIEM detection results.
+
+Information stored:
+    - Related execution.
+    - Attack technique.
+    - Number of alerts generated.
+    - Detection rules triggered.
+    - Detection percentage.
+
+This allows measurement of SOC effectiveness.
+"""
+
         with self._connect() as conn:
             conn.execute("""
                 INSERT INTO detections (execution_id, attack_name, alert_count, rule_ids, detected, detection_rate)
@@ -214,6 +451,18 @@ class DatabaseManager:
             ))
 
     # ── Statistiques ──────────────────────────────────────────────────────────
+
+    # ============================================================================
+# Reporting and analytics functions
+# ============================================================================
+# These methods provide aggregated information for:
+#
+#   - CLI statistics command.
+#   - Streamlit dashboard.
+#   - Security reports.
+#
+# They transform raw database records into analyst-friendly information.
+# ============================================================================
 
     def get_attack_catalog(self) -> list:
         """Retourne le catalogue complet des attaques (CDC page 10)."""
@@ -274,7 +523,30 @@ class DatabaseManager:
                 return {row["attack_name"]: {"rate": round(row["avg_rate"], 1), "runs": row["runs"]} for row in rows}
 
     def get_global_stats(self) -> dict:
-        """Retourne les statistiques globales du projet."""
+        """
+Calculate global framework statistics.
+
+Returned indicators:
+
+    total_executions:
+        Number of Red Team simulations.
+
+    successful_attacks:
+        Successful offensive operations.
+
+    success_rate:
+        Percentage of successful attacks.
+
+    total_findings:
+        Number of Blue Team findings.
+
+    critical_findings:
+        Number of high-risk weaknesses.
+
+    avg_detection_rate:
+        Average Purple Team detection capability.
+"""
+
         with self._connect() as conn:
             total_executions = conn.execute("SELECT COUNT(*) FROM executions").fetchone()[0]
             successful       = conn.execute("SELECT COUNT(*) FROM executions WHERE status = 'success'").fetchone()[0]
@@ -292,7 +564,27 @@ class DatabaseManager:
             }
 
     def compare_audits(self, domain: str, before_date: str, after_date: str) -> dict:
-        """Compare deux audits Blue Team (avant/après durcissement)."""
+        """
+Compare security posture before and after hardening.
+
+This function helps measure remediation effectiveness.
+
+Example:
+
+Before:
+    Critical findings = 5
+
+After:
+    Critical findings = 1
+
+Delta:
+    Improvement of 4 findings
+
+Used for:
+    - Security improvement tracking.
+    - Before/after audit reports.
+"""
+
         with self._connect() as conn:
             def get_findings_at(date):
                 return conn.execute("""
