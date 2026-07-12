@@ -536,7 +536,7 @@ def main():
     # Selection de la cible — skip the interactive prompt if --target was
     # already given explicitly, or if we're running non-interactively
     # (--mode), where blocking on input() would hang a scripted invocation.
-    _select_target(skip=("--target" in sys.argv))
+    _select_target(skip=("--target" in sys.argv or "--domain" in sys.argv or args.mode == "stats"))
 
     # Initialise core framework components
     loader     = ModuleLoader()
