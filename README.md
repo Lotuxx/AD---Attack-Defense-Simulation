@@ -286,19 +286,6 @@ Works from Kali without PowerShell.
 
 Educational lab framework — use only in authorized environments.
 
----
-
-## Next Steps
-
-1. **Configure** `config.yaml` with your lab details
-2. **Test connectivity** with `./cli.py --mode blue --audit passwords`
-3. **Run a simple attack** like `./cli.py --mode red --attack kerberoasting`
-4. **Generate a report** and review the PDF
-5. **Apply hardening** with `ansible-playbook playbooks/hardening.yml`
-6. **Verify detections** with `./cli.py --mode purple`
-
----
-
 ## Support
 
 For issues, check:
