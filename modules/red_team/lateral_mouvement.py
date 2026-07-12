@@ -36,12 +36,19 @@ from typing import Optional
 from utils.format_utils import print_info, print_warning, print_success, print_error
 
 ATTACK_META = {
-    "name":      "Lateral Movement (PsExec / WMI)",
+    "name":      "Lateral Movement",
     "phase":     "Lateral Movement",
     "mitre":     "T1021.002 / T1047",
     "risk":      "Critique",
     "event_ids": [4624, 4688, 7045, 4698],
     "tools":     ["Impacket (psexec, wmiexec, smbexec)", "CrackMapExec"],
+    "description": (
+        "Une fois des credentials valides obtenus (mot de passe ou hash), l'attaquant "
+        "exécute des commandes à distance sur d'autres machines du domaine via PsExec, "
+        "WMI ou SMB. L'exécution se fait typiquement avec les privilèges SYSTEM, "
+        "permettant de rebondir de machine en machine jusqu'à atteindre une cible "
+        "critique (DC, serveur de fichiers, etc.)."
+    ),
 }
 
 
@@ -128,6 +135,28 @@ def run_attack(target: str = "192.168.56.11", domain: str = "domain.local",
                         f"Résultat : {result[:150]}{'…' if len(result) > 150 else ''}"
                     ),
                     "mitigation": _mitigation_for(meth),
+                    "mitigation_technique": (
+                        "1. Segmentation réseau : VLAN/microsegmentation pour isoler les ressources critiques.\n"
+                        "2. SMB Signing obligatoire via GPO (Windows > Policies > Windows Firewall with Advanced Security).\n"
+                        "3. MFA obligatoire sur tous les admins.\n"
+                        "4. Credential Guard / LSA Protection : activer sur tous les serveurs.\n"
+                        "5. Surveiller 4624 (logons anormaux), 4698 (tâches planifiées), 7045 (services).\n"
+                        "6. Implémenter le JEA (Just Enough Administration) pour limiter le scope des remotes."
+                    ),
+                    "mitigation_humaine": (
+                        "Procédure sécurisée de déploiement : tout déploiement distant doit être approuvé et loggé. "
+                        "Former les admins aux risques de mouvement latéral. Établir une procédure de changement "
+                        "pour les déploiements critiques. Auditer mensuellement les comptes avec droits d'exécution distante."
+                    ),
+                    "impact": (
+                        f"Accès à d'autres serveurs obtenu. Escalade de privilèges possible. "
+                        "Déploiement de malware, exfiltration de données, destruction, persistance via services distants."
+                    ),
+                    "logs_siem": [
+                        {"event_id": 4624, "description": "Logon anormal (type 3) sur serveur distant"},
+                        {"event_id": 4698, "description": "Scheduled Task created (si PsExec utilisé)"},
+                        {"event_id": 7045, "description": "Windows Service install — indicateur de PSEXESVC"},
+                    ],
                     "event_ids":  _event_ids_for(meth),
                 })
                 break  # First success per host is enough
