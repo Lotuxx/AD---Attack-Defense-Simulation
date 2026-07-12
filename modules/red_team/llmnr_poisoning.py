@@ -35,12 +35,18 @@ from datetime import datetime
 from utils.format_utils import print_info, print_warning, print_success, print_error
 
 ATTACK_META = {
-    "name":      "LLMNR/NBT-NS Poisoning",
+    "name":      "LLMNR Poisoning",
     "phase":     "Credential Access",
     "mitre":     "T1557.001",
     "risk":      "Élevé",
     "event_ids": [],   # Pas d'Event ID Windows natif - détection réseau/Wazuh custom
     "tools":     ["Responder", "Inveigh"],
+    "description": (
+        "Quand la résolution DNS échoue, Windows retombe sur les protocoles de "
+        "diffusion LLMNR et NBT-NS. Un attaquant sur le même segment réseau répond "
+        "à ces requêtes en se faisant passer pour la ressource demandée, capturant ainsi "
+        "le hash NTLMv2 de la victime lors de sa tentative d'authentification."
+    ),
 }
 
 RESPONDER_LOG = "/tmp/responder_capture.log"
@@ -115,6 +121,29 @@ def run_attack(interface: str = "eth0", duration_s: int = 60,
                     "2. Réinitialiser les mots de passe des comptes capturés.\n"
                     "3. Implémenter SMB Signing pour bloquer les relay attacks."
                 ),
+                "mitigation_technique": (
+                    "1. Désactiver LLMNR via GPO : Computer Configuration > Policies > Administrative Templates > "
+                    "Network > DNS Client > Turn off multicast name resolution (LLMNR) = Enabled.\n"
+                    "2. Désactiver NBT-NS via registry ou DHCP option 119 = '' (empty).\n"
+                    "3. Implémenter DNSSEC pour authentifier les résolutions DNS.\n"
+                    "4. Monitoring réseau : détecter les patterns Responder via Suricata/Zeek.\n"
+                    "5. Activer SMB Signing obligatoire : Microsoft network server: Digitally sign communications = Always.\n"
+                    "6. Honeypot LLMNR pour détecter les attaquants."
+                ),
+                "mitigation_humaine": (
+                    "Documenter la désactivation de LLMNR/NBT-NS comme standard de sécurité. "
+                    "Communiquer aux équipes réseau et infra les risques du LLMNR poisoning. "
+                    "Former le SOC à reconnaître les patterns de poisoning (pic de résolutions échouées). "
+                    "Intégrer la vérification LLMNR/NBT-NS au checklist de déploiement serveur."
+                ),
+                "impact": (
+                    f"Interception de {len(captured_hashes)} hash(es) NTLMv2. Escalade possible vers NTLM Relay "
+                    "(accès sans cracker le mot de passe). Compromission de comptes, accès réseau, exfiltration."
+                ),
+                "logs_siem": [
+                    {"type": "network", "description": "LLMNR/NBT-NS poisoning — détection via Suricata/Zeek uniquement (pas d'Event ID natif)"},
+                    {"type": "network", "description": "Responder/MultiRelay pattern : pics de requêtes UDP 137/138/5355"},
+                ],
                 "event_ids": [],
             })
         else:
