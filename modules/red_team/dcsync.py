@@ -17,6 +17,22 @@ from datetime import datetime
 
 from utils.format_utils import print_info, print_success, print_warning, print_error
 
+ATTACK_META = {
+    "name":      "DCSync",
+    "phase":     "Credential Access",
+    "mitre":     "T1003.006",
+    "risk":      "Critique",
+    "event_ids": [4662],
+    "tools":     ["Impacket (secretsdump.py)"],
+    "description": (
+        "Le protocole DRS (Directory Replication Service), normalement réservé aux "
+        "contrôleurs de domaine pour se synchroniser entre eux, est détourné pour "
+        "répliquer l'intégralité de la base NTDS.dit vers l'attaquant. Toute personne "
+        "disposant des droits 'Replicating Directory Changes All' peut réaliser cette "
+        "attaque sans jamais se connecter au DC."
+    ),
+}
+
 
 def run_attack(target: str = None, domain: str = "domain.local", user: str = None,
                password: str = None, **kwargs) -> dict:
@@ -87,7 +103,31 @@ def run_attack(target: str = None, domain: str = "domain.local", user: str = Non
                     "2. Auditer qui a accès aux droits de réplication AD. "
                     "3. Activer Kerberos dans les configurations critiques."
                 ),
-                "event_ids":   [4662],  # Object access (replication)
+                "mitigation_technique": (
+                    "1. Restreindre les droits de réplication AD : auditer qui a 'Replicating Directory Changes All'.\n"
+                    "2. Supprimer les droits de réplication des comptes non-DC.\n"
+                    "3. Monitorer Event ID 4662 en continu, alerter sur pattern DCSync.\n"
+                    "4. Centraliser et protéger les logs DC (immutabilité).\n"
+                    "5. Implémenter la détection basée sur le timing des requêtes DRS.\n"
+                    "6. Rotation krbtgt immédiate (2× d'affilée) après suspicion de DCSync."
+                ),
+                "mitigation_humaine": (
+                    "INCIDENT CRITIQUE : Tout DCSync doit déclencher une escalade immédiate au SOC et à la direction. "
+                    "Former le SOC à reconnaître et investiguer les patterns DCSync. Établir une procédure d'astreinte "
+                    "pour DCSync (réaction <1h). Sensibiliser les admins AD aux risques des droits de réplication. "
+                    "Ajouter une revue mensuelle des comptes avec droits de réplication."
+                ),
+                "impact": (
+                    f"Tous les hashes du domaine extraits ({len(hashes_extracted)} credential(s)). "
+                    "Accès complet au domaine : creation de Golden Tickets, compromission de tous les comptes, "
+                    "escalade vers forêt/domaines de confiance, exfiltration de données sensibles."
+                ),
+                "logs_siem": [
+                    {"event_id": 4662, "description": "Directory Service Access — indicateur majeur de DCSync"},
+                    {"event_id": 4624, "description": "Logon avec authentification DCSync (type 9)"},
+                    {"rule": "Wazuh 65001 (exemple)", "description": "DRS replication abuse detection (si activée)"},
+                ],
+                "event_ids":   [4662, 4624],  # Object access (replication) + Logon
             })
         else:
             print_warning("Aucun hash extrait (vérifier les droits/connectivité).")
@@ -104,10 +144,16 @@ def run_attack(target: str = None, domain: str = "domain.local", user: str = Non
             "status":       "success" if hashes_extracted else "partial",
             "elapsed_s":    30.0,  # Approximation
             "timestamp":    datetime.now().isoformat(),
+            "attack_meta":  ATTACK_META,
             "findings":     findings,
             "artifacts": {
                 "ntds_hashes": hashes_extracted,
             },
+            "iocs": [{
+                "type":        "event_id",
+                "value":       4662,
+                "description": "Opération sur objet AD avec GUIDs de réplication DRS — indicateur de DCSync",
+            }],
             "summary": {
                 "total_hashes_extracted": len(hashes_extracted),
                 "domain_compromised": len(hashes_extracted) > 100,  # If many hashes, domain is compromised
@@ -185,6 +231,7 @@ def _error(message: str) -> dict:
         "module":   "red_team.dcsync",
         "status":   "error",
         "message":  message,
+        "attack_meta": ATTACK_META,
         "findings": [{
             "risk":        "Critique",
             "title":       "DCSync échoué",
